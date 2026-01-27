@@ -1,0 +1,81 @@
+<div class="about-page">
+  <div class="content-wrapper">
+    <div class="sections-container">
+      <!-- App Logo/Icon Section -->
+      <div class="section logo-section">
+        <div class="section-content">
+          <img
+            src="assets/bmpresence2_logo.png"
+            alt="BMPresence Logo"
+            class="app-logo"
+          />
+          <h1 class="app-title">BMPresence</h1>
+          <p class="app-subtitle">Sistema di Gestione Presenze</p>
+        </div>
+      </div>
+
+      <!-- App Information Section -->
+      <div class="section info-section">
+        <div class="section-content">
+          <h2 class="section-title">Informazioni App</h2>
+
+          <div class="info-grid">
+            <div class="info-row">
+              <span class="info-label">Versione:</span>
+              <span class="info-value">1.0.0</span>
+            </div>
+
+            <div class="info-row">
+              <span class="info-label">Framework:</span>
+              <span class="info-value">Angular 19</span>
+            </div>
+
+            <div class="info-row full-width">
+              <p class="developer-note">
+                Sviluppato con ❤️ e 127 caffè da un team di scimmie che ha
+                imparato a programmare invece di lanciare banane (anche se a
+                volte lanciamo eccezioni)
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Support Section -->
+      <div class="section support-section">
+        <div class="section-content">
+          <h2 class="section-title">Supporto e Contatti</h2>
+
+          <div class="button-group">
+            <button class="btn btn-primary" (click)="onSupportClicked()">
+              📧 Contatta il Supporto
+            </button>
+
+            <button class="btn btn-primary" (click)="onCheckUpdatesClicked()">
+              🔄 Controlla Aggiornamenti
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Legal Information -->
+      <div class="legal-section">
+        <div class="legal-links">
+          <a class="legal-link" (click)="onTermsOfServiceTapped()"
+            >📜 Termini di Servizio</a
+          >
+          <span class="separator">|</span>
+          <a class="legal-link" (click)="onPrivacyPolicyTapped()"
+            >🔒 Privacy Policy</a
+          >
+        </div>
+        <p class="copyright">Tutti i sinistri riservati</p>
+      </div>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div class="loading-overlay" *ngIf="isBusy">
+      <div class="spinner"></div>
+    </div>
+  </div>
+</div>

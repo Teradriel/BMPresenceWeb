@@ -1,1 +1,30 @@
-<router-outlet />
+<div class="app-container">
+  <!-- Header with App Title -->
+  <header class="app-header">
+    <div class="header-content">
+      <img
+        src="assets/bmpresence2_logo.png"
+        alt="BMPresence Logo"
+        class="app-logo-small"
+      />
+      <h1 class="app-title">BMPresence</h1>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="tabs-container">
+    <div class="tabs">
+      @for (tab of tabs; track tab.path) {
+        <a [routerLink]="tab.path" routerLinkActive="active" class="tab">
+          <span class="tab-icon">{{ tab.icon }}</span>
+          <span class="tab-label">{{ tab.label }}</span>
+        </a>
+      }
+    </div>
+  </nav>
+
+  <!-- Page Content -->
+  <main class="page-content">
+    <router-outlet />
+  </main>
+</div>
