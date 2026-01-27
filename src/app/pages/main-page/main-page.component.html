@@ -1,0 +1,59 @@
+<div class="main-page-container">
+  <div class="grid-container">
+    <!-- Header con botón de actualizar y estado de conexión -->
+    <div class="header-toolbar">
+      <button
+        class="refresh-button"
+        (click)="refreshCalendar()"
+        title="Aggiorna calendario"
+      >
+        Aggiorna
+      </button>
+      <span class="connection-label">Db online</span>
+      <span class="connection-status">{{ isConnectedStr }}</span>
+    </div>
+
+    <!-- Área del scheduler -->
+    <div class="scheduler-container">
+      <ejs-schedule
+        #scheduleObj
+        width="100%"
+        height="100%"
+        [selectedDate]="selectedDate"
+        [currentView]="currentView"
+        [eventSettings]="eventSettings"
+        [group]="group"
+        [showWeekNumber]="true"
+        [showHeaderBar]="true"
+        (cellClick)="onCellClick($event)"
+        (eventClick)="onEventClick($event)"
+      >
+        <e-resources>
+          <e-resource
+            field="ResourceIds"
+            title="Resources"
+            name="Resources"
+            [dataSource]="resourceDataSource"
+            textField="Name"
+            idField="Id"
+            colorField="Background"
+          >
+          </e-resource>
+        </e-resources>
+        <e-views>
+          <e-view
+            option="TimelineWorkWeek"
+            [startHour]="'08:30'"
+            [endHour]="'09:30'"
+            [timeScale]="{ enable: true, interval: 60, slotCount: 1 }"
+          ></e-view>
+        </e-views>
+      </ejs-schedule>
+    </div>
+
+    <!-- Indicador de carga -->
+    <div class="loading-overlay" *ngIf="isBusy">
+      <div class="spinner"></div>
+    </div>
+  </div>
+</div>
