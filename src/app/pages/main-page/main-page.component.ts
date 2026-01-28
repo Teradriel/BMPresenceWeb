@@ -103,15 +103,29 @@ constructor(
         this.calendarService.getAppointments()
       );
 
-      // Actualizar configuración de eventos
+      // Actualizar configuración de eventos con todos los campos necesarios
       this.eventSettings = {
-        dataSource: this.presence
+        dataSource: this.presence,
+        fields: {
+          id: 'Id',
+          subject: { name: 'Subject' },
+          startTime: { name: 'StartTime' },
+          endTime: { name: 'EndTime' },
+          recurrenceRule: { name: 'RecurrenceRule' }
+        }
       };
 
       console.log('Datos cargados:', {
         resources: this.resourceDataSource.length,
-        appointments: this.presence.length
+        appointments: this.presence.length,
+        presenceData: this.presence
       });
+
+      // Refrescar el scheduler si ya está inicializado
+      if (this.scheduleObj) {
+        this.scheduleObj.eventSettings.dataSource = this.presence;
+        this.scheduleObj.dataBind();
+      }
     } catch (error: any) {
       console.error('Error cargando datos del calendario:', error);
       
@@ -123,7 +137,14 @@ constructor(
       this.resourceDataSource = [];
       this.presence = [];
       this.eventSettings = {
-        dataSource: this.presence
+        dataSource: this.presence,
+        fields: {
+          id: 'Id',
+          subject: { name: 'Subject' },
+          startTime: { name: 'StartTime' },
+          endTime: { name: 'EndTime' },
+          recurrenceRule: { name: 'RecurrenceRule' }
+        }
       };
     } finally {
       this.isBusy = false;

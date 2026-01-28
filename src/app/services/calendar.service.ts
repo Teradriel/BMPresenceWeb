@@ -93,10 +93,28 @@ export class CalendarService {
     return {
       Id: appointment.id.toString(),
       Subject: appointment.subject,
-      StartTime: new Date(appointment.startTime),
-      EndTime: new Date(appointment.endTime),
+      StartTime: this.parseLocalDateTime(appointment.startTime),
+      EndTime: this.parseLocalDateTime(appointment.endTime),
       ResourceIds: appointment.resourceIds?.map(id => id.toString()) || undefined,
       RecurrenceRule: appointment.recurrenceRule || undefined
     };
+  }
+
+  /**
+   * Convierte una fecha ISO string a Date tratándola como hora local
+   * (ignora el timezone UTC del backend)
+   */
+  private parseLocalDateTime(dateString: string): Date {
+    // Parsear primero como UTC
+    const utcDate = new Date(dateString);
+    // Crear nueva fecha usando los componentes UTC como si fueran locales
+    return new Date(
+      utcDate.getUTCFullYear(),
+      utcDate.getUTCMonth(),
+      utcDate.getUTCDate(),
+      utcDate.getUTCHours(),
+      utcDate.getUTCMinutes(),
+      utcDate.getUTCSeconds()
+    );
   }
 }
