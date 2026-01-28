@@ -1,7 +1,9 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, firstValueFrom } from 'rxjs';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { environment } from '../../environments/environment.local';
+import { SKIP_AUTH_INTERCEPTOR } from '../interceptors/auth.interceptor';
 
 export interface User {
   id: string;
@@ -31,8 +33,14 @@ export class AuthService {
   private readonly TOKEN_KEY = 'bmpresence_token';
   private readonly USER_KEY = 'bmpresence_user';
   private readonly apiUrl = environment.apiUrl;
+  
+  // **PROTECCIÓN ANTI-LOOP**: Flags para prevenir llamadas concurrentes
   private isRestoringSession = false;
   private isRenewingToken = false;
+  private isLoggingIn = false;
+
+  private http = inject(HttpClient);
+  private tokenRenewalService?: any; // Lazy injection
 
   constructor(private router: Router) {
     const storedUser = this.getStoredUser();
@@ -52,27 +60,25 @@ export class AuthService {
   }
 
   async login(username: string, password: string): Promise<void> {
+    // **PROTECCIÓN ANTI-LOOP**: Prevenir múltiples llamadas simultáneas
+    if (this.isLoggingIn) {
+      console.warn('Login already in progress, skipping duplicate call');
+      return;
+    }
+
+    this.isLoggingIn = true;
+
     try {
-      const response = await fetch(`${this.apiUrl}/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password })
-      });
-
-      // Verify response content type
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        throw new Error('Il server non è disponibile o non risponde correttamente. Verifica che il backend sia in esecuzione su ' + this.apiUrl);
-      }
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Nome utente o password non corretti');
-      }
-
-      const data = await response.json();
+      // Las peticiones de autenticación NO pasan por el interceptor (ver auth.interceptor.ts)
+      const data = await firstValueFrom(
+        this.http.post<any>(`${this.apiUrl}/auth/login`, 
+          { username, password },
+          {
+            // Context para asegurar que esta petición no pase por el interceptor
+            context: new HttpContext().set(SKIP_AUTH_INTERCEPTOR, true)
+          }
+        )
+      );
       
       if (!data.success) {
         throw new Error(data.message || 'Nome utente o password non corretti');
@@ -84,22 +90,32 @@ export class AuthService {
       
       // Update observable
       this.currentUserSubject.next(data.user);
-    } catch (error) {
+
+      // Renovación automática DESACTIVADA
+      // this.startTokenRenewal();
+    } catch (error: any) {
+      if (error?.error?.message) {
+        throw new Error(error.error.message);
+      }
       if (error instanceof Error) {
         throw error;
       }
       throw new Error('Errore durante il tentativo di accesso. Verifica la connessione e che il server sia disponibile.');
+    } finally {
+      this.isLoggingIn = false;
     }
   }
 
   logout(): void {
-    // Call logout endpoint
-    fetch(`${this.apiUrl}/auth/logout`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${this.getToken()}`
-      }
-    }).catch(err => console.error('Error en logout:', err));
+    // Detener renovación automática
+    this.stopTokenRenewal();
+
+    // Call logout endpoint (esta petición NO pasa por el interceptor)
+    this.http.post(`${this.apiUrl}/auth/logout`, {}, {
+      context: new HttpContext().set(SKIP_AUTH_INTERCEPTOR, true)
+    }).subscribe({
+      error: (err) => console.error('Error en logout:', err)
+    });
 
     // Clear storage
     localStorage.removeItem(this.TOKEN_KEY);
@@ -114,32 +130,27 @@ export class AuthService {
 
   async register(data: RegisterData): Promise<void> {
     try {
-      const response = await fetch(`${this.apiUrl}/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      // Las peticiones de autenticación NO pasan por el interceptor
+      const result = await firstValueFrom(
+        this.http.post<any>(`${this.apiUrl}/auth/register`, {
           name: data.name,
           lastName: data.lastName,
           email: data.email,
           username: data.username,
           password: data.password,
           isAdmin: data.isAdmin || false
+        }, {
+          context: new HttpContext().set(SKIP_AUTH_INTERCEPTOR, true)
         })
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Errore durante la registrazione');
-      }
-
-      const result = await response.json();
+      );
       
       if (!result.success) {
         throw new Error(result.message || 'Errore durante la registrazione');
       }
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.error?.message) {
+        throw new Error(error.error.message);
+      }
       if (error instanceof Error) {
         throw error;
       }
@@ -149,26 +160,23 @@ export class AuthService {
 
   async changePassword(currentPassword: string, newPassword: string): Promise<void> {
     try {
-      const response = await fetch(`${this.apiUrl}/auth/change-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.getToken()}`
-        },
-        body: JSON.stringify({ currentPassword, newPassword })
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Password attuale non corretta');
-      }
-
-      const result = await response.json();
+      // Esta petición NO pasa por el interceptor para evitar loops
+      const result = await firstValueFrom(
+        this.http.post<any>(`${this.apiUrl}/auth/change-password`, 
+          { currentPassword, newPassword },
+          {
+            context: new HttpContext().set(SKIP_AUTH_INTERCEPTOR, true)
+          }
+        )
+      );
       
       if (!result.success) {
         throw new Error(result.message || 'Password attuale non corretta');
       }
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.error?.message) {
+        throw new Error(error.error.message);
+      }
       if (error instanceof Error) {
         throw error;
       }
@@ -179,6 +187,7 @@ export class AuthService {
   async restoreSession(): Promise<void> {
     const token = this.getToken();
     
+    // **PROTECCIÓN ANTI-LOOP**: Evitar múltiples llamadas simultáneas
     if (!token || this.isRestoringSession) {
       return;
     }
@@ -186,26 +195,23 @@ export class AuthService {
     this.isRestoringSession = true;
 
     try {
-      const response = await fetch(`${this.apiUrl}/auth/restore-session`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token })
-      });
-
-      if (!response.ok) {
-        // Invalid or expired token
-        this.clearSession();
-        return;
-      }
-
-      const data = await response.json();
+      // Esta petición NO pasa por el interceptor para evitar loops infinitos
+      const data = await firstValueFrom(
+        this.http.post<any>(`${this.apiUrl}/auth/restore-session`, 
+          { token },
+          {
+            context: new HttpContext().set(SKIP_AUTH_INTERCEPTOR, true)
+          }
+        )
+      );
       
       if (data.success && data.user) {
         // Update user without changing token
         this.setUser(data.user);
         this.currentUserSubject.next(data.user);
+        
+        // Renovación automática DESACTIVADA
+        // this.startTokenRenewal();
       } else {
         this.clearSession();
       }
@@ -217,9 +223,10 @@ export class AuthService {
     }
   }
 
-  async renewToken(): Promise<void> {
+  public async renewToken(): Promise<void> {
     const token = this.getToken();
     
+    // **PROTECCIÓN ANTI-LOOP**: Evitar múltiples llamadas simultáneas
     if (!token || this.isRenewingToken) {
       return;
     }
@@ -227,20 +234,18 @@ export class AuthService {
     this.isRenewingToken = true;
 
     try {
-      const response = await fetch(`${this.apiUrl}/auth/renew-token`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token })
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        
-        if (data.success && data.token) {
-          this.setToken(data.token);
-        }
+      // Esta petición NO pasa por el interceptor para evitar loops infinitos
+      const data = await firstValueFrom(
+        this.http.post<any>(`${this.apiUrl}/auth/renew-token`, 
+          { token },
+          {
+            context: new HttpContext().set(SKIP_AUTH_INTERCEPTOR, true)
+          }
+        )
+      );
+      
+      if (data.success && data.token) {
+        this.setToken(data.token);
       }
     } catch (error) {
       console.error('Error renovando token:', error);
@@ -278,8 +283,37 @@ export class AuthService {
   }
 
   private clearSession(): void {
+    this.stopTokenRenewal();
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
     this.currentUserSubject.next(null);
+  }
+
+  /**
+   * Inicia el servicio de renovación automática de tokens.
+   * Usa lazy loading para evitar dependencia circular.
+   */
+  private startTokenRenewal(): void {
+    if (!this.tokenRenewalService) {
+      // Importación dinámica para evitar dependencia circular
+      import('./token-renewal.service').then(({ TokenRenewalService }) => {
+        // Crear instancia manualmente con las dependencias necesarias
+        this.tokenRenewalService = new TokenRenewalService(this);
+        this.tokenRenewalService.startTokenRenewal();
+      }).catch((err: any) => {
+        console.error('Error loading TokenRenewalService:', err);
+      });
+    } else {
+      this.tokenRenewalService.startTokenRenewal();
+    }
+  }
+
+  /**
+   * Detiene el servicio de renovación de tokens.
+   */
+  private stopTokenRenewal(): void {
+    if (this.tokenRenewalService) {
+      this.tokenRenewalService.stopTokenRenewal();
+    }
   }
 }

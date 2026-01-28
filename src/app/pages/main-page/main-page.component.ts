@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
+import { CalendarService, Resource, Appointment } from '../../services/calendar.service';
 import { 
   ScheduleModule, 
   TimelineViewsService,
@@ -14,22 +15,7 @@ import {
   View,
   ResourceDetails
 } from '@syncfusion/ej2-angular-schedule';
-
-interface Resource {
-  Id: string;
-  Name: string;
-  Background: string;
-  Foreground: string;
-}
-
-interface Appointment {
-  Id?: string;
-  Subject: string;
-  StartTime: Date;
-  EndTime: Date;
-  ResourceIds?: string[];
-  RecurrenceRule?: string;
-}
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-main-page',
@@ -90,7 +76,10 @@ export class MainPageComponent implements OnInit {
     idField: 'Id',
     colorField: 'Background'
   };
-constructor(private authService: AuthService) {
+constructor(
+    private authService: AuthService,
+    private calendarService: CalendarService
+  ) {
     const user = this.authService.currentUserValue;
     this.currentUserName = user?.name || user?.username || 'Utente';
   }
@@ -100,33 +89,45 @@ constructor(private authService: AuthService) {
     this.loadData();
   }
 
-  loadData(): void {
+  async loadData(): Promise<void> {
     this.isBusy = true;
     
-    // Sample data - replace with actual API calls
-    this.resourceDataSource = [
-      { Id: '1', Name: 'Persona 1', Background: '#00bdae', Foreground: '#ffffff' },
-      { Id: '2', Name: 'Persona 2', Background: '#357cd2', Foreground: '#ffffff' },
-      { Id: '3', Name: 'Persona 3', Background: '#7fa900', Foreground: '#ffffff' }
-    ];
+    try {
+      // Cargar recursos desde el backend
+      this.resourceDataSource = await firstValueFrom(
+        this.calendarService.getResources()
+      );
 
-    this.presence = [
-      {
-        Id: '1',
-        Subject: 'Presente',
-        StartTime: new Date(2026, 0, 27, 8, 30),
-        EndTime: new Date(2026, 0, 27, 9, 30),
-        ResourceIds: ['1']
-      }
-    ];
+      // Cargar appointments desde el backend
+      this.presence = await firstValueFrom(
+        this.calendarService.getAppointments()
+      );
 
-    this.eventSettings = {
-      dataSource: this.presence
-    };
+      // Actualizar configuración de eventos
+      this.eventSettings = {
+        dataSource: this.presence
+      };
 
-    setTimeout(() => {
+      console.log('Datos cargados:', {
+        resources: this.resourceDataSource.length,
+        appointments: this.presence.length
+      });
+    } catch (error: any) {
+      console.error('Error cargando datos del calendario:', error);
+      
+      // Mostrar mensaje de error al usuario
+      const errorMessage = error?.error?.message || error?.message || 'Error al cargar los datos del calendario';
+      alert(`Error: ${errorMessage}`);
+      
+      // Mantener datos vacíos en caso de error
+      this.resourceDataSource = [];
+      this.presence = [];
+      this.eventSettings = {
+        dataSource: this.presence
+      };
+    } finally {
       this.isBusy = false;
-    }, 1000);
+    }
   }
 
   refreshCalendar(): void {
