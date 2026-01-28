@@ -1,10 +1,10 @@
-# Configuración de Variables de Entorno
+# Configurazione delle Variabili di Ambiente
 
 ## Syncfusion License Key
 
-Para que la aplicación funcione correctamente, necesitas configurar tu clave de licencia de Syncfusion.
+Per far funzionare correttamente l'applicazione, è necessario configurare la chiave di licenza Syncfusion.
 
-### Pasos:
+### Passaggi:
 
 1. **Obtén tu clave de licencia**:
    - Regístrate en [Syncfusion](https://www.syncfusion.com/)
@@ -16,21 +16,21 @@ Para que la aplicación funcione correctamente, necesitas configurar tu clave de
    - Reemplaza `'TU_CLAVE_DE_SYNCFUSION_AQUI'` con tu clave real
    - Guarda el archivo
 
-3. **Ejemplo**:
+3. **Esempio**:
    ```typescript
    export const environment = {
      production: false,
-     syncfusionLicenseKey: "Mjo5MTIzNEBUYW4uY29t", // Tu clave aquí
+     syncfusionLicenseKey: "Mjo5MTIzNEBUYW4uY29t", // Your key here
    };
    ```
 
 ### ⚠️ Importante:
 
-- **NO subas** `environment.local.ts` a GitHub (ya está en `.gitignore`)
-- El archivo `environment.local.example.ts` es solo una plantilla
-- Otros desarrolladores deben crear su propio `environment.local.ts` con su clave
+- **NON caricare** `environment.local.ts` su GitHub (già presente in `.gitignore`)
+- Il file `environment.local.example.ts` è solo un modello
+- Altri sviluppatori devono creare il proprio `environment.local.ts` con la loro chiave
 
-### Estructura de archivos:
+### Struttura dei file:
 
 ```
 src/environments/

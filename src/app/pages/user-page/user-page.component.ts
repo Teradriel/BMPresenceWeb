@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 interface User {
   name: string;
@@ -20,6 +22,19 @@ interface User {
 export class UserPageComponent {
   isBusy = false;
 
+  constructor(
+    private router: Router,
+    private authService: AuthService
+  ) {
+    // Load current user data if available
+    const currentUser = this.authService.currentUserValue;
+    if (currentUser) {
+      this.user.name = currentUser.name || 'Utente';
+      this.user.lastName = currentUser.lastName || '';
+      this.user.username = currentUser.username;
+    }
+  }
+
   // Mock user data - replace with actual service call
   user: User = {
     name: 'Mario',
@@ -36,14 +51,12 @@ export class UserPageComponent {
   }
 
   onChangePassword(): void {
-    console.log('Change password clicked');
-    // Implement change password logic
+    this.router.navigate(['/change-password']);
   }
 
   onLogout(): void {
     if (confirm('Sei sicuro di voler uscire dall\'account?')) {
-      console.log('Logout clicked');
-      // Implement logout logic
+      this.authService.logout();
     }
   }
 

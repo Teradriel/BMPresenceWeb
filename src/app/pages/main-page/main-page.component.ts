@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../services/auth.service';
 import { 
   ScheduleModule, 
   TimelineViewsService,
@@ -49,14 +50,15 @@ export class MainPageComponent implements OnInit {
   @ViewChild('scheduleObj') scheduleObj!: ScheduleComponent;
 
   title = 'Presenze 8:30';
-  isConnectedStr = 'Conectado';
+  isConnectedStr = 'Connesso';
   isBusy = false;
   selectedDate: Date = new Date();
+  currentUserName: string = '';
   
-  // Datos del scheduler
+  // Scheduler data
   presence: Appointment[] = [];
   
-  // Configuración de eventos
+  // Event configuration
   eventSettings: EventSettingsModel = {
     dataSource: this.presence,
     fields: {
@@ -68,17 +70,17 @@ export class MainPageComponent implements OnInit {
     }
   };
 
-  // Vista actual
+  // Current view
   currentView: View = 'TimelineWorkWeek';
 
-  // Configuración de recursos
+  // Resource configuration
   resourceDataSource: Resource[] = [];
   
   group = {
     resources: ['Resources']
   };
 
-  // Configuración de recursos para el scheduler
+  // Resource settings for scheduler
   resourceSettings = {
     dataSource: this.resourceDataSource,
     field: 'ResourceIds',
@@ -88,7 +90,12 @@ export class MainPageComponent implements OnInit {
     idField: 'Id',
     colorField: 'Background'
   };
+constructor(private authService: AuthService) {
+    const user = this.authService.currentUserValue;
+    this.currentUserName = user?.name || user?.username || 'Utente';
+  }
 
+  
   ngOnInit(): void {
     this.loadData();
   }
@@ -96,7 +103,7 @@ export class MainPageComponent implements OnInit {
   loadData(): void {
     this.isBusy = true;
     
-    // Datos de ejemplo - reemplazar con llamadas a API real
+    // Sample data - replace with actual API calls
     this.resourceDataSource = [
       { Id: '1', Name: 'Persona 1', Background: '#00bdae', Foreground: '#ffffff' },
       { Id: '2', Name: 'Persona 2', Background: '#357cd2', Foreground: '#ffffff' },
@@ -123,7 +130,7 @@ export class MainPageComponent implements OnInit {
   }
 
   refreshCalendar(): void {
-    console.log('Actualizando calendario...');
+    console.log('Aggiornamento calendario...');
     this.loadData();
     if (this.scheduleObj) {
       this.scheduleObj.refresh();
@@ -131,11 +138,15 @@ export class MainPageComponent implements OnInit {
   }
 
   onCellClick(args: any): void {
-    console.log('Celda clickeada:', args);
-    // Implementar lógica para añadir presencia
+    console.log('Cella cliccata:', args);
+    // Implement logic to add presence
   }
 
   onEventClick(args: any): void {
-    console.log('Evento clickeado:', args);
+    console.log('Evento cliccato:', args);
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 }

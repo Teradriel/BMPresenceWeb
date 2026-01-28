@@ -1,7 +1,8 @@
-// Este archivo se usa para desarrollo
-// Importa las configuraciones locales que no se suben a GitHub
+// This file is used for development
+// Imports local configurations that are not uploaded to GitHub
 
 export const environment = {
   production: false,
-  syncfusionLicenseKey: '' // Sobrescrito por environment.local.ts
+  apiUrl: 'http://localhost:8080/api', // Backend in development
+  syncfusionLicenseKey: '' // Overridden by environment.local.ts
 };

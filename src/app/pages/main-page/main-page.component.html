@@ -2,15 +2,23 @@
   <div class="grid-container">
     <!-- Header con botón de actualizar y estado de conexión -->
     <div class="header-toolbar">
-      <button
-        class="refresh-button"
-        (click)="refreshCalendar()"
-        title="Aggiorna calendario"
-      >
-        Aggiorna
-      </button>
-      <span class="connection-label">Db online</span>
-      <span class="connection-status">{{ isConnectedStr }}</span>
+      <div class="toolbar-left">
+        <button
+          class="refresh-button"
+          (click)="refreshCalendar()"
+          title="Aggiorna calendario"
+        >
+          Aggiorna
+        </button>
+        <span class="connection-label">Db online</span>
+        <span class="connection-status">{{ isConnectedStr }}</span>
+      </div>
+      <div class="toolbar-right">
+        <span class="user-name">{{ currentUserName }}</span>
+        <button class="logout-button" (click)="logout()" title="Logout">
+          Logout
+        </button>
+      </div>
     </div>
 
     <!-- Área del scheduler -->

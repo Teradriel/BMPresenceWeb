@@ -1,7 +1,8 @@
-// Este archivo se usa para producción
-// Las claves reales deben estar en environment.local.ts (no se sube a GitHub)
+// This file is used for production
+// Real keys should be in environment.local.ts (not uploaded to GitHub)
 
 export const environment = {
   production: true,
-  syncfusionLicenseKey: '' // Dejar vacío - usar variables de entorno del servidor
+  apiUrl: '/api', // Relative URL in production
+  syncfusionLicenseKey: '' // Leave empty - use server environment variables
 };
