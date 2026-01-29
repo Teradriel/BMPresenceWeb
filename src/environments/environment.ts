@@ -3,6 +3,6 @@
 
 export const environment = {
   production: true,
-  apiUrl: '/api', // Relative URL in production
+  apiUrl: 'https://bmpresence-back.onrender.com/api', // Backend in production (Render)
   syncfusionLicenseKey: '' // Leave empty - use server environment variables
 };
