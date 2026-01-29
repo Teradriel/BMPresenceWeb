@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, firstValueFrom } from 'rxjs';
 import { HttpClient, HttpContext } from '@angular/common/http';
-import { environment } from '../../environments/environment.local';
+import { environment } from '../../environments/environment';
 import { SKIP_AUTH_INTERCEPTOR } from '../interceptors/auth.interceptor';
 
 export interface User {
