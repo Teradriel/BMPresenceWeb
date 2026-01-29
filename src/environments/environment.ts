@@ -1,8 +1,8 @@
 // This file is used for production
-// Real keys should be in environment.local.ts (not uploaded to GitHub)
+// syncfusionLicenseKey will be injected from Vercel environment variables during build
 
 export const environment = {
   production: true,
   apiUrl: 'https://bmpresence-back.onrender.com/api', // Backend in production (Render)
-  syncfusionLicenseKey: '' // Leave empty - use server environment variables
+  syncfusionLicenseKey: process.env['SYNCFUSION_LICENSE_KEY'] || ''
 };
