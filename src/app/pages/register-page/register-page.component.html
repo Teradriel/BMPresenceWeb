@@ -1,0 +1,92 @@
+<div class="register-container">
+  <div class="scroll-content">
+    <!-- Header Section -->
+    <div class="header-section">
+      <h1 class="page-title">Crea Account</h1>
+      <p class="page-subtitle">Completa i campi per registrarti</p>
+    </div>
+
+    <!-- Form Section -->
+    <div class="form-section">
+      <div class="form-container">
+        <input
+          type="text"
+          class="input-field"
+          placeholder="Nome"
+          [(ngModel)]="name"
+          [disabled]="isLoading"
+          (keyup.enter)="onRegister()"
+        />
+
+        <input
+          type="text"
+          class="input-field"
+          placeholder="Cognome"
+          [(ngModel)]="lastName"
+          [disabled]="isLoading"
+          (keyup.enter)="onRegister()"
+        />
+
+        <input
+          type="text"
+          class="input-field"
+          placeholder="Nome utente"
+          [(ngModel)]="username"
+          [disabled]="isLoading"
+          (keyup.enter)="onRegister()"
+        />
+
+        <input
+          type="email"
+          class="input-field"
+          placeholder="Email"
+          [(ngModel)]="email"
+          [disabled]="isLoading"
+          (keyup.enter)="onRegister()"
+        />
+
+        <input
+          type="password"
+          class="input-field"
+          placeholder="Password (min 6 caratteri)"
+          [(ngModel)]="password"
+          [disabled]="isLoading"
+          (keyup.enter)="onRegister()"
+        />
+
+        <input
+          type="password"
+          class="input-field"
+          placeholder="Conferma password"
+          [(ngModel)]="confirmPassword"
+          [disabled]="isLoading"
+          (keyup.enter)="onRegister()"
+        />
+
+        <p class="error-message" *ngIf="errorMessage">
+          {{ errorMessage }}
+        </p>
+
+        <button
+          class="register-button"
+          (click)="onRegister()"
+          [disabled]="isLoading"
+        >
+          {{ isLoading ? "Registrazione..." : "Registrati" }}
+        </button>
+
+        <button
+          class="cancel-button"
+          (click)="onCancel()"
+          [disabled]="isLoading"
+        >
+          Annulla
+        </button>
+
+        <div class="loading-indicator" *ngIf="isLoading">
+          <div class="spinner"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

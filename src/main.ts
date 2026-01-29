@@ -1,6 +1,13 @@
 import { bootstrapApplication } from '@angular/platform-browser';
 import { appConfig } from './app/app.config';
 import { AppComponent } from './app/app.component';
+import { registerLicense } from '@syncfusion/ej2-base';
+import { environment } from './environments/environment.local';
+
+// Registrar licencia de Syncfusion desde variables de entorno
+if (environment.syncfusionLicenseKey) {
+  registerLicense(environment.syncfusionLicenseKey);
+}
 
 bootstrapApplication(AppComponent, appConfig)
   .catch((err) => console.error(err));

@@ -1,0 +1,78 @@
+<div class="user-page">
+  <div class="content-wrapper">
+    <div class="sections-container">
+      <!-- Header Section with Avatar and Basic Info -->
+      <div class="section header-section">
+        <div class="section-content">
+          <div class="user-info">
+            <!-- Name and Username -->
+            <div class="name-container">
+              <h1 class="user-name">{{ user.name }} {{ user.lastName }}</h1>
+              <div class="username-row">
+                <span class="username">{{ "@" + user.username }}</span>
+                <!-- Admin Badge -->
+                <span class="admin-badge" *ngIf="user.isAdmin">ADMIN</span>
+              </div>
+            </div>
+
+            <!-- Edit Profile Button -->
+            <button class="btn btn-secondary" (click)="onEditProfile()">
+              Modifica Profilo
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Account Information -->
+      <div class="section info-section">
+        <div class="section-content">
+          <h2 class="section-title">Informazioni Account</h2>
+
+          <div class="info-list">
+            <!-- Created Date -->
+            <div class="info-item">
+              <span class="info-icon">📅</span>
+              <div class="info-details">
+                <span class="info-label">Registrato il</span>
+                <span class="info-value">{{ formatDate(user.createdAt) }}</span>
+              </div>
+            </div>
+
+            <!-- Last Active -->
+            <div class="info-item" *ngIf="user.lastActiveAt">
+              <span class="info-icon">🕐</span>
+              <div class="info-details">
+                <span class="info-label">Ultima Attività</span>
+                <span class="info-value">{{
+                  formatDate(user.lastActiveAt)
+                }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Security Section -->
+      <div class="section security-section">
+        <div class="section-content">
+          <h2 class="section-title">Sicurezza</h2>
+
+          <div class="button-group">
+            <button class="btn btn-primary" (click)="onChangePassword()">
+              Cambia Password
+            </button>
+
+            <button class="btn btn-danger" (click)="onLogout()">
+              Esci dall'Account
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div class="loading-overlay" *ngIf="isBusy">
+      <div class="spinner"></div>
+    </div>
+  </div>
+</div>

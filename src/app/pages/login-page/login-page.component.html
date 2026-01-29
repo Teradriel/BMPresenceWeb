@@ -1,0 +1,55 @@
+<div class="login-container">
+  <!-- Header Section -->
+  <div class="header-section">
+    <h1 class="app-title">BMPresence</h1>
+    <p class="app-subtitle">
+      Sistema di gestione della vostra presenza alle 8:30
+    </p>
+  </div>
+
+  <!-- Form Section -->
+  <div class="form-section">
+    <div class="form-container">
+      <input
+        type="text"
+        class="input-field"
+        placeholder="Utente"
+        [(ngModel)]="username"
+        [disabled]="isBusy"
+        (keyup.enter)="onLogin()"
+      />
+
+      <input
+        type="password"
+        class="input-field"
+        placeholder="Password"
+        [(ngModel)]="password"
+        [disabled]="isBusy"
+        (keyup.enter)="onLogin()"
+      />
+
+      <p class="error-message" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </p>
+
+      <button class="login-button" (click)="onLogin()" [disabled]="isBusy">
+        {{ isBusy ? "Accesso in corso..." : "Accedi" }}
+      </button>
+
+      <div class="register-link">
+        <span class="register-text">Non hai un account?</span>
+        <a class="register-link-text" (click)="onRegister()">Registrati</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Section -->
+  <div class="footer-section">
+    <p class="version-text">BMPresence v1.0</p>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div class="loading-overlay" *ngIf="isBusy">
+    <div class="spinner"></div>
+  </div>
+</div>

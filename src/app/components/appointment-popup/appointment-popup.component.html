@@ -1,0 +1,62 @@
+<div class="popup-overlay" *ngIf="isVisible" (click)="onCancel()">
+  <div class="popup-content" (click)="$event.stopPropagation()">
+    <div class="popup-header">
+      <h2>A chi vuoi assegnare?</h2>
+    </div>
+
+    <div class="popup-body">
+      <div class="appointment-info" *ngIf="appointmentData">
+        <p><strong>Risorsa:</strong> {{ appointmentData.resourceName }}</p>
+        <p>
+          <strong>Data:</strong>
+          {{ appointmentData.startTime | date: "dd/MM/yyyy" }}
+        </p>
+        <p>
+          <strong>Ora:</strong>
+          {{ appointmentData.startTime | date: "HH:mm" }} -
+          {{ appointmentData.endTime | date: "HH:mm" }}
+        </p>
+      </div>
+
+      <button class="btn btn-primary full-width" (click)="onAssignToMe()">
+        ✓ Assegna a me
+      </button>
+
+      <div class="divider">
+        <span>oppure...</span>
+      </div>
+
+      <div class="form-group">
+        <label for="userSelect">Scegli un collega</label>
+        <select id="userSelect" class="form-control" [(ngModel)]="selectedUser">
+          <option [ngValue]="undefined">Seleziona un utente...</option>
+          <option *ngFor="let user of users" [ngValue]="user">
+            {{
+              user.fullName || user.name + " " + user.lastName || user.username
+            }}
+          </option>
+        </select>
+      </div>
+
+      <button
+        class="btn btn-secondary full-width"
+        [disabled]="!isAssignButtonEnabled"
+        (click)="onAssignToSelectedUser()"
+      >
+        ✓ Assegna al collega selezionato
+      </button>
+
+      <button
+        *ngIf="isEditMode"
+        class="btn btn-danger full-width"
+        (click)="onDelete()"
+      >
+        🗑️ Elimina Appuntamento
+      </button>
+
+      <button class="btn btn-cancel full-width" (click)="onCancel()">
+        ✕ Annulla
+      </button>
+    </div>
+  </div>
+</div>
