@@ -26,6 +26,25 @@ interface AppointmentDTO {
   resourceIds: number[] | null;
 }
 
+// Interfaces para crear/actualizar appointments
+export interface CreateAppointmentRequest {
+  subject: string;
+  startTime: string;
+  endTime: string;
+  resourceIds: number[];
+  recurrenceRule?: string;
+  active: boolean;
+}
+
+export interface UpdateAppointmentRequest {
+  subject?: string;
+  startTime?: string;
+  endTime?: string;
+  resourceIds?: number[];
+  recurrenceRule?: string;
+  active?: boolean;
+}
+
 // Interfaces para el frontend (Syncfusion)
 export interface Resource {
   Id: string;
@@ -67,10 +86,12 @@ export class CalendarService {
    */
   getAppointments(): Observable<Appointment[]> {
     return this.http.get<AppointmentDTO[]>(`${this.apiUrl}/appointments`).pipe(
-      map(appointments => appointments
-        .filter(a => a.active) // Solo appointments activos
-        .map(a => this.mapAppointmentToFrontend(a))
-      )
+      map(appointments => {
+        console.log('Appointments del backend (raw):', appointments);
+        return appointments
+          .filter(a => a.active) // Solo appointments activos
+          .map(a => this.mapAppointmentToFrontend(a));
+      })
     );
   }
 
@@ -101,20 +122,88 @@ export class CalendarService {
   }
 
   /**
-   * Convierte una fecha ISO string a Date tratándola como hora local
-   * (ignora el timezone UTC del backend)
+   * Crea un nuevo appointment
+   */
+  createAppointment(appointment: Appointment): Observable<Appointment> {
+    const request = this.mapAppointmentToBackend(appointment);
+    console.log('Petición al backend (createAppointment):', request);
+    console.log('resourceIds type:', typeof request.resourceIds, 'isArray:', Array.isArray(request.resourceIds));
+    console.log('JSON a enviar:', JSON.stringify(request));
+    return this.http.post<AppointmentDTO>(`${this.apiUrl}/appointments`, request).pipe(
+      map(dto => this.mapAppointmentToFrontend(dto))
+    );
+  }
+
+  /**
+   * Actualiza un appointment existente
+   */
+  updateAppointment(id: string, appointment: Appointment): Observable<Appointment> {
+    const request: UpdateAppointmentRequest = {
+      subject: appointment.Subject,
+      startTime: this.formatDateTimeToUTC(appointment.StartTime),
+      endTime: this.formatDateTimeToUTC(appointment.EndTime),
+      resourceIds: appointment.ResourceIds?.map(id => parseInt(id)),
+      recurrenceRule: appointment.RecurrenceRule || undefined
+    };
+    return this.http.put<AppointmentDTO>(`${this.apiUrl}/appointments/${id}`, request).pipe(
+      map(dto => this.mapAppointmentToFrontend(dto))
+    );
+  }
+
+  /**
+   * Elimina un appointment (lo marca como inactivo)
+   */
+  deleteAppointment(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/appointments/${id}`);
+  }
+
+  /**
+   * Mapea un appointment del frontend al formato del backend
+   */
+  private mapAppointmentToBackend(appointment: Appointment): CreateAppointmentRequest {
+    // Normalizar resourceIds a array de números
+    // ResourceIds siempre debe existir (1=mobile, 2=onlog)
+    if (!appointment.ResourceIds || appointment.ResourceIds.length === 0) {
+      throw new Error('ResourceIds es obligatorio (1=mobile, 2=onlog)');
+    }
+
+    const resourceIds = appointment.ResourceIds.map(id => {
+      // Convertir a número, ya sea string o número
+      return typeof id === 'string' ? parseInt(id, 10) : id;
+    });
+
+    return {
+      subject: appointment.Subject,
+      startTime: this.formatDateTimeToUTC(appointment.StartTime),
+      endTime: this.formatDateTimeToUTC(appointment.EndTime),
+      resourceIds: resourceIds,
+      recurrenceRule: appointment.RecurrenceRule || undefined,
+      active: true
+    };
+  }
+
+  /**
+   * Convierte una fecha local a ISO string sin conversión a UTC
+   */
+  private formatDateTimeToUTC(date: Date): string {
+    // Tomar los componentes locales sin convertir a UTC
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    
+    // Enviar sin el sufijo Z para que el backend lo interprete como LocalDateTime
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+  }
+
+  /**
+   * Convierte una fecha ISO string a Date como hora local
+   * El backend envía LocalDateTime sin zona horaria (sin "Z")
+   * JavaScript lo parsea correctamente como hora local
    */
   private parseLocalDateTime(dateString: string): Date {
-    // Parsear primero como UTC
-    const utcDate = new Date(dateString);
-    // Crear nueva fecha usando los componentes UTC como si fueran locales
-    return new Date(
-      utcDate.getUTCFullYear(),
-      utcDate.getUTCMonth(),
-      utcDate.getUTCDate(),
-      utcDate.getUTCHours(),
-      utcDate.getUTCMinutes(),
-      utcDate.getUTCSeconds()
-    );
+    return new Date(dateString);
   }
 }

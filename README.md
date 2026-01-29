@@ -1,59 +1,45 @@
 # BMPresenceWeb
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.0.
+BMPresenceWeb is a scheduling and presence management web application. It provides authentication, protected routes, user profiles, and appointment management through a calendar-based UI.
 
-## Development server
+## Key Features
 
-To start a local development server, run:
+- User authentication (login/logout) and session persistence
+- Route protection with guards
+- Main dashboard with scheduling features
+- Appointment creation and editing through the calendar UI
+- User management views
+- Legal pages (privacy policy and terms of service)
 
-```bash
-ng serve
-```
+## Tech Stack
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- Angular 19
+- TypeScript
+- Syncfusion components (calendar/scheduling UI)
 
-## Code scaffolding
+## Getting Started
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+1. Install dependencies
+   - `npm install`
+2. Configure environment variables
+   - See [ENVIRONMENT_SETUP.md](ENVIRONMENT_SETUP.md)
+3. Start the development server
+   - `npm start` or `ng serve`
+4. Open the app
+   - `http://localhost:4200/`
 
-```bash
-ng generate component component-name
-```
+## Project Documentation
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+- Authentication flow and guards: [AUTH_SETUP.md](AUTH_SETUP.md)
+- Environment variables and Syncfusion key: [ENVIRONMENT_SETUP.md](ENVIRONMENT_SETUP.md)
+- Backend API contract for appointments: [BACKEND_API_REQUIREMENTS.md](BACKEND_API_REQUIREMENTS.md)
 
-```bash
-ng generate --help
-```
+## Scripts
 
-## Building
+- Start dev server: `npm start` or `ng serve`
+- Build: `ng build`
+- Unit tests: `ng test`
 
-To build the project run:
+## Notes
 
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+This project uses standard Angular CLI conventions for structure, builds, and testing.

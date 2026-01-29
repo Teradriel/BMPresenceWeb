@@ -1,22 +1,22 @@
-# Configurazione delle Variabili di Ambiente
+# Environment Variables Setup
 
 ## Syncfusion License Key
 
-Per far funzionare correttamente l'applicazione, è necessario configurare la chiave di licenza Syncfusion.
+To run the application correctly, configure the Syncfusion license key.
 
-### Passaggi:
+### Steps
 
-1. **Obtén tu clave de licencia**:
-   - Regístrate en [Syncfusion](https://www.syncfusion.com/)
-   - Obtén una licencia Community (gratis) o de prueba
-   - Copia tu clave de licencia
+1. **Get your license key**
+   - Register at [Syncfusion](https://www.syncfusion.com/)
+   - Obtain a Community (free) or trial license
+   - Copy your license key
 
-2. **Configura el archivo local**:
-   - Abre el archivo `src/environments/environment.local.ts`
-   - Reemplaza `'TU_CLAVE_DE_SYNCFUSION_AQUI'` con tu clave real
-   - Guarda el archivo
+2. **Configure the local file**
+   - Open `src/environments/environment.local.ts`
+   - Replace `'YOUR_SYNCFUSION_KEY_HERE'` with your real key
+   - Save the file
 
-3. **Esempio**:
+3. **Example**
    ```typescript
    export const environment = {
      production: false,
@@ -24,18 +24,18 @@ Per far funzionare correttamente l'applicazione, è necessario configurare la ch
    };
    ```
 
-### ⚠️ Importante:
+### ⚠️ Important
 
-- **NON caricare** `environment.local.ts` su GitHub (già presente in `.gitignore`)
-- Il file `environment.local.example.ts` è solo un modello
-- Altri sviluppatori devono creare il proprio `environment.local.ts` con la loro chiave
+- **Do not commit** `environment.local.ts` to GitHub (it is already in `.gitignore`)
+- `environment.local.example.ts` is just a template
+- Each developer should create their own `environment.local.ts` with their key
 
-### Struttura dei file:
+### File Structure
 
 ```
 src/environments/
-├── environment.ts                    ✅ Se sube a GitHub (producción)
-├── environment.development.ts        ✅ Se sube a GitHub (desarrollo)
-├── environment.local.ts              ❌ NO se sube (tu clave aquí)
-└── environment.local.example.ts      ✅ Se sube a GitHub (plantilla)
+├── environment.ts                    ✅ committed (production)
+├── environment.development.ts        ✅ committed (development)
+├── environment.local.ts              ❌ not committed (your key here)
+└── environment.local.example.ts      ✅ committed (template)
 ```

@@ -1,24 +1,24 @@
-# Sistema di Autenticazione - BMPresence
+# Authentication System - BMPresence
 
-## Descrizione
+## Overview
 
-Sistema di autenticazione implementato per l'applicazione BMPresence Web. Include login, logout, protezione delle rotte e persistenza della sessione.
+Authentication system implemented for the BMPresence Web application. It includes login, logout, route protection, and session persistence.
 
-## File Creati
+## Files Created
 
-### 1. Servizio di Autenticazione
+### 1. Authentication Service
 
-**Posizione:** `src/app/services/auth.service.ts`
+**Location:** `src/app/services/auth.service.ts`
 
-Il servizio fornisce le seguenti funzionalità:
+The service provides the following features:
 
-- Login con utente e password
+- Login with username and password
 - Logout
-- Verifica dello stato di autenticazione
-- Archiviazione persistente della sessione (localStorage)
-- Observable dell'utente corrente
+- Authentication state checks
+- Persistent session storage (localStorage)
+- Current user observable
 
-#### Metodi principali:
+#### Main methods:
 
 ```typescript
 login(username: string, password: string): Promise<void>
@@ -28,37 +28,37 @@ currentUserValue: User | null
 getAuthToken(): string | null
 ```
 
-### 2. Guards di Rotta
+### 2. Route Guards
 
-**Posizione:** `src/app/guards/auth.guard.ts`
+**Location:** `src/app/guards/auth.guard.ts`
 
-Sono stati implementati due guards:
+Two guards were implemented:
 
-- **authGuard**: Protegge le rotte che richiedono autenticazione
-  - Se l'utente non è autenticato, reindirizza a `/login`
-  - Salva l'URL richiesto per reindirizzare dopo il login
+- **authGuard**: Protects routes that require authentication
+  - If the user is not authenticated, it redirects to `/login`
+  - It stores the requested URL to redirect after login
 
-- **loginGuard**: Previene l'accesso al login se già autenticato
-  - Se l'utente è già autenticato, reindirizza a `/main`
+- **loginGuard**: Prevents access to login if already authenticated
+  - If the user is authenticated, it redirects to `/main`
 
-### 3. Rotte Protette
+### 3. Protected Routes
 
-**Posizione:** `src/app/app.routes.ts`
+**Location:** `src/app/app.routes.ts`
 
-Rotte configurate:
+Configured routes:
 
-- `/login` - Accessibile solo per utenti non autenticati (loginGuard)
-- `/main` - Richiede autenticazione (authGuard)
-- `/user` - Richiede autenticazione (authGuard)
-- `/about` - Richiede autenticazione (authGuard)
-- `/privacy-policy` - Richiede autenticazione (authGuard)
-- `/terms-of-service` - Richiede autenticazione (authGuard)
+- `/login` - Only for non-authenticated users (loginGuard)
+- `/main` - Requires authentication (authGuard)
+- `/user` - Requires authentication (authGuard)
+- `/about` - Requires authentication (authGuard)
+- `/privacy-policy` - Requires authentication (authGuard)
+- `/terms-of-service` - Requires authentication (authGuard)
 
-## Utilizzo
+## Usage
 
 ### Login
 
-El componente de login ya está configurado para usar el servicio:
+The login component is already configured to use the service:
 
 ```typescript
 await this.authService.login(username, password);
@@ -66,13 +66,13 @@ await this.authService.login(username, password);
 
 ### Logout
 
-Añadido botón de logout en la página principal:
+Logout button is available on the main page:
 
 ```typescript
 this.authService.logout();
 ```
 
-### Verificare autenticazione
+### Check Authentication
 
 ```typescript
 if (this.authService.isAuthenticated) {
@@ -80,30 +80,30 @@ if (this.authService.isAuthenticated) {
 }
 ```
 
-### Ottenere utente corrente
+### Get Current User
 
 ```typescript
 const user = this.authService.currentUserValue;
 console.log(user.username);
 ```
 
-### Iscriversi ai cambiamenti di autenticazione
+### Subscribe to Auth Changes
 
 ```typescript
 this.authService.currentUser.subscribe((user) => {
   if (user) {
-    console.log("User logged in:", user);
+    console.log("User logged in:");
   } else {
     console.log("User not logged in");
   }
 });
 ```
 
-## Integrazione con API Reale
+## Real API Integration
 
-Attualmente il servizio utilizza una simulazione. Per integrare con un'API reale:
+The current service uses a mock. To integrate with a real API:
 
-1. **Sostituire il metodo di login:**
+1. **Replace the login method:**
 
 ```typescript
 async login(username: string, password: string): Promise<void> {
@@ -116,7 +116,7 @@ async login(username: string, password: string): Promise<void> {
   });
 
   if (!response.ok) {
-    throw new Error('Nome utente o password non corretti');
+    throw new Error('Invalid username or password');
   }
 
   const data = await response.json();
@@ -126,7 +126,7 @@ async login(username: string, password: string): Promise<void> {
 }
 ```
 
-2. **Creare un interceptor HTTP per aggiungere il token:**
+2. **Create an HTTP interceptor to add the token:**
 
 ```typescript
 // src/app/interceptors/auth.interceptor.ts
@@ -150,7 +150,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 };
 ```
 
-3. **Registrare l'interceptor in app.config.ts:**
+3. **Register the interceptor in app.config.ts:**
 
 ```typescript
 import { provideHttpClient, withInterceptors } from "@angular/common/http";
@@ -164,18 +164,18 @@ export const appConfig: ApplicationConfig = {
 };
 ```
 
-## Sicurezza
+## Security
 
-- Le credenziali sono archiviate in localStorage
-- Il token viene incluso automaticamente nelle richieste HTTP (quando si configura l'interceptor)
-- Le rotte sono protette da guards
-- La sessione persiste tra i ricaricamenti della pagina
+- Credentials are stored in localStorage
+- Token is automatically included in HTTP requests (when interceptor is configured)
+- Routes are protected by guards
+- Session persists across page reloads
 
-## Prossimi Passi
+## Next Steps
 
-1. Implementare pagina di registrazione
-2. Aggiungere recupero password
-3. Implementare refresh token
-4. Aggiungere gestione della scadenza del token
-5. Implementare ruoli e permessi utente
-6. Aggiungere verifica email
+1. Implement registration page
+2. Add password recovery
+3. Implement refresh token
+4. Handle token expiration
+5. Implement user roles and permissions
+6. Add email verification

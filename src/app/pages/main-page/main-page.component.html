@@ -35,6 +35,7 @@
         [showHeaderBar]="true"
         (cellClick)="onCellClick($event)"
         (eventClick)="onEventClick($event)"
+        (popupOpen)="onPopupOpen($event)"
       >
         <e-resources>
           <e-resource
@@ -63,5 +64,18 @@
     <div class="loading-overlay" *ngIf="isBusy">
       <div class="spinner"></div>
     </div>
+
+    <!-- Popup personalizado de asignación -->
+    <app-appointment-popup
+      [isVisible]="showAppointmentPopup"
+      [appointmentData]="appointmentPopupData"
+      [currentUser]="currentUser"
+      [users]="users"
+      [isEditMode]="isEditMode"
+      (assignToMe)="onAssignToMe()"
+      (assignToUser)="onAssignToUser($event)"
+      (deleteAppointment)="onDeleteAppointment()"
+      (cancel)="closePopup()"
+    ></app-appointment-popup>
   </div>
 </div>
