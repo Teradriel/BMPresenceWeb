@@ -4,5 +4,6 @@
 export const environment = {
   production: true,
   apiUrl: 'https://bmpresence-back.onrender.com/api', // Backend in production (Render)
-  syncfusionLicenseKey: process.env['SYNCFUSION_LICENSE_KEY'] || ''
+  // Replace with your real Syncfusion license key in production using env variables in Vercel
+  syncfusionLicenseKey: ''
 };
