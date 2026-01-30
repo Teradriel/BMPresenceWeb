@@ -3,7 +3,7 @@
 
 export const environment = {
   production: true,
-  apiUrl: 'https://bmpresence-back.onrender.com/api', // Backend in production (Render)
+  apiUrl: 'https://ltd-damaris-teradriel-3e71d501.koyeb.app/api', // Backend in production
   // Replace with your real Syncfusion license key in production using env variables in Vercel
   syncfusionLicenseKey: ''
 };
