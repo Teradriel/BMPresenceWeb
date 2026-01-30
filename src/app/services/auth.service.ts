@@ -19,7 +19,6 @@ export interface RegisterData {
   name: string;
   lastName: string;
   username: string;
-  email: string;
   password: string;
   isAdmin?: boolean;
 }
@@ -135,7 +134,6 @@ export class AuthService {
         this.http.post<any>(`${this.apiUrl}/auth/register`, {
           name: data.name,
           lastName: data.lastName,
-          email: data.email,
           username: data.username,
           password: data.password,
           isAdmin: data.isAdmin || false

@@ -15,7 +15,6 @@ export class RegisterPageComponent {
   name: string = '';
   lastName: string = '';
   username: string = '';
-  email: string = '';
   password: string = '';
   confirmPassword: string = '';
   errorMessage: string = '';
@@ -30,15 +29,8 @@ export class RegisterPageComponent {
     this.errorMessage = '';
 
     // Validations
-    if (!this.name || !this.lastName || !this.username || !this.email || !this.password || !this.confirmPassword) {
+    if (!this.name || !this.lastName || !this.username || !this.password || !this.confirmPassword) {
       this.errorMessage = 'Tutti i campi sono obbligatori';
-      return;
-    }
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(this.email)) {
-      this.errorMessage = 'Inserisci un indirizzo email valido';
       return;
     }
 
@@ -59,7 +51,6 @@ export class RegisterPageComponent {
         name: this.name,
         lastName: this.lastName,
         username: this.username,
-        email: this.email,
         password: this.password
       });
 
