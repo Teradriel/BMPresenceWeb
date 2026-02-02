@@ -50,6 +50,7 @@ export class RegisterPageComponent {
       await this.authService.register({
         name: this.name,
         lastName: this.lastName,
+        email: this.name + '.' + this.lastName + '@bluemobility.it',
         username: this.username,
         password: this.password
       });

@@ -125,7 +125,6 @@
   {
     "id": "1",
     "username": "luca.terzariol",
-    "email": "luca@example.com",
     "name": "Luca",
     "lastName": "Terzariol",
     "isAdmin": false,
@@ -134,7 +133,6 @@
   {
     "id": "2",
     "username": "mario.rossi",
-    "email": "mario@example.com",
     "name": "Mario",
     "lastName": "Rossi",
     "isAdmin": false,

@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TokenRenewalService } from './services/token-renewal.service';
+import { filter } from 'rxjs/operators';
 
 interface Tab {
   label: string;
@@ -17,6 +18,7 @@ interface Tab {
 })
 export class AppComponent {
   title = 'BMPresenceWeb';
+  showNavigation = true;
   
   tabs: Tab[] = [
     { label: 'Principale', path: '/main', icon: '🏠' },
@@ -24,7 +26,18 @@ export class AppComponent {
     { label: 'Informazioni', path: '/about', icon: 'ℹ️' }
   ];
 
-  constructor(private tokenRenewalService: TokenRenewalService) {
+  constructor(
+    private tokenRenewalService: TokenRenewalService,
+    private router: Router
+  ) {
     // The service initializes automatically
+    
+    // Hide navigation on login and register pages
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: any) => {
+      const url = event.urlAfterRedirects || event.url;
+      this.showNavigation = !url.includes('/login') && !url.includes('/register');
+    });
   }
 }
