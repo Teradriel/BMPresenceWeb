@@ -97,6 +97,12 @@
   padding: 0;
 }
 
+.page-content.full-page {
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 /* Dark Mode Support */
 @media (prefers-color-scheme: dark) {
   .app-container {
