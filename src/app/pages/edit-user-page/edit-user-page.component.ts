@@ -31,7 +31,7 @@ export class EditUserPageComponent implements OnInit {
   currentUser: User | null = null;
 
   ngOnInit(): void {
-    // Obtener el usuario actual
+    // Get current user
     this.authService.currentUser.subscribe(user => {
       this.currentUser = user;
       if (user) {
@@ -41,7 +41,7 @@ export class EditUserPageComponent implements OnInit {
   }
 
   /**
-   * Inicializa el formulario con los datos del usuario actual
+   * Initializes the form with current user data
    */
   private initializeForm(user: User): void {
     this.editForm = this.fb.group({
@@ -52,7 +52,7 @@ export class EditUserPageComponent implements OnInit {
   }
 
   /**
-   * Guarda los cambios del perfil del usuario
+   * Saves user profile changes
    */
   async saveChanges(): Promise<void> {
     if (this.editForm.invalid || !this.currentUser) {
@@ -66,18 +66,18 @@ export class EditUserPageComponent implements OnInit {
     try {
       const updateData: UpdateUserData = this.editForm.value;
       
-      // Llamada al servicio de usuario
+      // Call user service
       const updatedUser = await firstValueFrom(
         this.userService.updateUser(this.currentUser.id, updateData)
       );
 
-      // Actualizar el usuario en el servicio de autenticación
+      // Update user in authentication service
       this.authService.updateCurrentUser(updatedUser);
 
-      // Navegar de vuelta a la página de perfil
+      // Navigate back to profile page
       await this.router.navigate(['/user']);
     } catch (error: any) {
-      this.errorMessage = error?.error?.message || 'Error al actualizar el perfil';
+      this.errorMessage = error?.error?.message || 'Errore durante l’aggiornamento del profilo';
       console.error('Error updating user:', error);
     } finally {
       this.isLoading = false;
@@ -85,14 +85,14 @@ export class EditUserPageComponent implements OnInit {
   }
 
   /**
-   * Cancela la edición y vuelve a la página anterior
+   * Cancels editing and returns to previous page
    */
   cancel(): void {
     this.router.navigate(['/user']);
   }
 
   /**
-   * Marca todos los campos del formulario como tocados para mostrar errores
+   * Marks all form fields as touched to show errors
    */
   private markFormGroupTouched(formGroup: FormGroup): void {
     Object.keys(formGroup.controls).forEach(key => {
@@ -102,7 +102,7 @@ export class EditUserPageComponent implements OnInit {
   }
 
   /**
-   * Verifica si un campo tiene errores y ha sido tocado
+   * Checks if a field has errors and has been touched
    */
   hasError(fieldName: string): boolean {
     const field = this.editForm.get(fieldName);
@@ -110,7 +110,7 @@ export class EditUserPageComponent implements OnInit {
   }
 
   /**
-   * Obtiene el mensaje de error para un campo específico
+   * Gets the error message for a specific field
    */
   getErrorMessage(fieldName: string): string {
     const field = this.editForm.get(fieldName);

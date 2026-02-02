@@ -4,7 +4,7 @@ import { AppComponent } from './app/app.component';
 import { registerLicense } from '@syncfusion/ej2-base';
 import { environment } from './environments/environment';
 
-// Registrar licencia de Syncfusion desde variables de entorno
+// Register Syncfusion license from environment variables
 if (environment.syncfusionLicenseKey) {
   registerLicense(environment.syncfusionLicenseKey);
 }

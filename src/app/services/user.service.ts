@@ -29,7 +29,7 @@ export class UserService {
   private readonly apiUrl = environment.apiUrl;
 
   /**
-   * Obtiene la lista de usuarios activos
+   * Gets the list of active users
    */
   getUsers(): Observable<UserDisplay[]> {
     return this.http.get<UserDTO[]>(`${this.apiUrl}/users`).pipe(
@@ -41,14 +41,14 @@ export class UserService {
   }
 
   /**
-   * Actualiza la información de un usuario
+   * Updates user information
    */
   updateUser(userId: string, data: Partial<UserDTO>): Observable<UserDTO> {
     return this.http.put<UserDTO>(`${this.apiUrl}/users/${userId}`, data);
   }
 
   /**
-   * Mapea un usuario a formato de visualización
+   * Maps a user to display format
    */
   private mapUserToDisplay(user: UserDTO): UserDisplay {
     const fullName = user.name && user.lastName 

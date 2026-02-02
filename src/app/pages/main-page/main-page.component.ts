@@ -106,9 +106,9 @@ export class MainPageComponent implements OnInit {
   async loadUsers(): Promise<void> {
     try {
       this.users = await firstValueFrom(this.userService.getUsers());
-      console.log('Usuarios cargados:', this.users.length);
+      console.log('Users loaded:', this.users.length);
     } catch (error) {
-      console.error('Error cargando usuarios:', error);
+      console.error('Error loading users:', error);
       this.users = [];
     }
   }
@@ -117,17 +117,17 @@ export class MainPageComponent implements OnInit {
     this.isBusy = true;
     
     try {
-      // Cargar recursos desde el backend
+      // Load resources from backend
       this.resourceDataSource = await firstValueFrom(
         this.calendarService.getResources()
       );
 
-      // Cargar appointments desde el backend
+      // Load appointments from backend
       this.presence = await firstValueFrom(
         this.calendarService.getAppointments()
       );
 
-      // Actualizar configuración de eventos con todos los campos necesarios
+      // Update event configuration with all necessary fields
       this.eventSettings = {
         dataSource: this.presence,
         fields: {
@@ -139,25 +139,25 @@ export class MainPageComponent implements OnInit {
         }
       };
 
-      console.log('Datos cargados:', {
+      console.log('Data loaded:', {
         resources: this.resourceDataSource.length,
         appointments: this.presence.length,
         presenceData: this.presence
       });
 
-      // Refrescar el scheduler si ya está inicializado
+      // Refresh scheduler if already initialized
       if (this.scheduleObj) {
         this.scheduleObj.eventSettings.dataSource = this.presence;
         this.scheduleObj.dataBind();
       }
     } catch (error: any) {
-      console.error('Error cargando datos del calendario:', error);
+      console.error('Error loading calendar data:', error);
       
-      // Mostrar mensaje de error al usuario
-      const errorMessage = error?.error?.message || error?.message || 'Error al cargar los datos del calendario';
-      alert(`Error: ${errorMessage}`);
+      // Show error message to user
+      const errorMessage = error?.error?.message || error?.message || 'Errore durante il caricamento dei dati del calendario';
+      alert(`Errore: ${errorMessage}`);
       
-      // Mantener datos vacíos en caso de error
+      // Keep empty data on error
       this.resourceDataSource = [];
       this.presence = [];
       this.eventSettings = {
@@ -176,7 +176,7 @@ export class MainPageComponent implements OnInit {
   }
 
   refreshCalendar(): void {
-    console.log('Aggiornamento calendario...');
+    console.log('Refreshing calendar...');
     this.loadData();
     if (this.scheduleObj) {
       this.scheduleObj.refresh();
@@ -184,7 +184,7 @@ export class MainPageComponent implements OnInit {
   }
 
   onPopupOpen(args: PopupOpenEventArgs): void {
-    // Cancelar el popup por defecto de Syncfusion
+    // Cancel default Syncfusion popup
     args.cancel = true;
 
     if (args.type === 'QuickInfo' || args.type === 'Editor') {
@@ -193,21 +193,21 @@ export class MainPageComponent implements OnInit {
       console.log('onPopupOpen - data:', data);
       console.log('onPopupOpen - resourceDataSource:', this.resourceDataSource);
       
-      // Determinar si es edición o creación
+      // Determine if it's edit or create
       this.isEditMode = !!data.Id;
 
-      // Obtener información del recurso
-      // Para nuevos appointments, usar groupIndex para determinar el recurso
+      // Get resource information
+      // For new appointments, use groupIndex to determine the resource
       let resourceId: string;
       if (data.ResourceIds) {
         resourceId = Array.isArray(data.ResourceIds) ? data.ResourceIds[0] : data.ResourceIds;
       } else if (data.groupIndex !== undefined && this.resourceDataSource[data.groupIndex]) {
         resourceId = this.resourceDataSource[data.groupIndex].Id;
-        console.log('Usando groupIndex:', data.groupIndex, 'resourceId:', resourceId);
+        console.log('Using groupIndex:', data.groupIndex, 'resourceId:', resourceId);
       } else {
-        // Fallback: usar el primer recurso disponible
+        // Fallback: use first available resource
         resourceId = this.resourceDataSource[0]?.Id || '1';
-        console.log('Usando fallback, resourceId:', resourceId);
+        console.log('Using fallback, resourceId:', resourceId);
       }
 
       const resource = this.resourceDataSource.find(r => r.Id === resourceId);
@@ -216,7 +216,7 @@ export class MainPageComponent implements OnInit {
         startTime: data.StartTime,
         endTime: data.EndTime,
         resourceIds: [resourceId],
-        resourceName: resource?.Name || 'Desconocido',
+        resourceName: resource?.Name || 'Unknown',
         appointmentId: data.Id
       };
 
@@ -227,11 +227,11 @@ export class MainPageComponent implements OnInit {
   }
 
   onCellClick(args: any): void {
-    console.log('Cella cliccata:', args);
+    console.log('Cell clicked:', args);
   }
 
   onEventClick(args: any): void {
-    console.log('Evento cliccato:', args);
+    console.log('Event clicked:', args);
   }
 
   /**
@@ -290,33 +290,33 @@ export class MainPageComponent implements OnInit {
         ResourceIds: this.appointmentPopupData.resourceIds
       };
 
-      console.log('Appointment a crear/actualizar:', appointment);
+      console.log('Appointment to create/update:', appointment);
 
       if (this.isEditMode && this.appointmentPopupData.appointmentId) {
-        // Actualizar appointment existente
+        // Update existing appointment
         const updated = await firstValueFrom(
           this.calendarService.updateAppointment(this.appointmentPopupData.appointmentId, appointment)
         );
         
-        // Actualizar en el array local
+        // Update in local array
         const index = this.presence.findIndex(a => a.Id === this.appointmentPopupData!.appointmentId);
         if (index !== -1) {
           this.presence[index] = updated;
         }
       } else {
-        // Crear nuevo appointment
+        // Create new appointment
         const created = await firstValueFrom(
           this.calendarService.createAppointment(appointment)
         );
         
-        // Agregar al array local
+        // Add to local array
         this.presence.push(created);
       }
       
       this.refreshCalendar();
       this.closePopup();
     } catch (error: any) {
-      console.error('Errore assegnazione appuntamento:', error);
+      console.error('Error assigning appointment:', error);
       const errorMessage = this.translateErrorMessage(error);
       alert(errorMessage);
     } finally {
@@ -336,33 +336,33 @@ export class MainPageComponent implements OnInit {
         ResourceIds: this.appointmentPopupData.resourceIds
       };
 
-      console.log('Appointment a crear/actualizar (assign to user):', appointment);
+      console.log('Appointment to create/update (assign to user):', appointment);
 
       if (this.isEditMode && this.appointmentPopupData.appointmentId) {
-        // Actualizar appointment existente
+        // Update existing appointment
         const updated = await firstValueFrom(
           this.calendarService.updateAppointment(this.appointmentPopupData.appointmentId, appointment)
         );
         
-        // Actualizar en el array local
+        // Update in local array
         const index = this.presence.findIndex(a => a.Id === this.appointmentPopupData!.appointmentId);
         if (index !== -1) {
           this.presence[index] = updated;
         }
       } else {
-        // Crear nuevo appointment
+        // Create new appointment
         const created = await firstValueFrom(
           this.calendarService.createAppointment(appointment)
         );
         
-        // Agregar al array local
+        // Add to local array
         this.presence.push(created);
       }
       
       this.refreshCalendar();
       this.closePopup();
     } catch (error: any) {
-      console.error('Errore assegnazione appuntamento:', error);
+      console.error('Error assigning appointment:', error);
       const errorMessage = this.translateErrorMessage(error);
       alert(errorMessage);
     } finally {
@@ -373,25 +373,25 @@ export class MainPageComponent implements OnInit {
   async onDeleteAppointment(): Promise<void> {
     if (!this.appointmentPopupData?.appointmentId) return;
 
-    const confirmed = confirm('¿Estás seguro de que quieres eliminar esta cita?');
+    const confirmed = confirm('Sei sicuro di voler eliminare questo appuntamento?');
     if (!confirmed) return;
 
     this.isBusy = true;
     try {
-      // Llamar al servicio para eliminar
+      // Call service to delete
       await firstValueFrom(
         this.calendarService.deleteAppointment(this.appointmentPopupData.appointmentId)
       );
       
-      // Eliminar del array local
+      // Remove from local array
       this.presence = this.presence.filter(a => a.Id !== this.appointmentPopupData!.appointmentId);
       
       this.refreshCalendar();
       this.closePopup();
     } catch (error: any) {
-      console.error('Error eliminando cita:', error);
-      const errorMessage = error?.error?.message || error?.message || 'Error al eliminar la cita';
-      alert(`Error: ${errorMessage}`);
+      console.error('Error deleting appointment:', error);
+      const errorMessage = error?.error?.message || error?.message || 'Errore durante l’eliminazione dell’appuntamento';
+      alert(`Errore: ${errorMessage}`);
     } finally {
       this.isBusy = false;
     }

@@ -9,9 +9,9 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    // Configurar HttpClient con el interceptor de autenticación
+    // Configure HttpClient with the authentication interceptor
     provideHttpClient(withInterceptors([authInterceptor])),
-    // TokenRenewalService ya no se inicializa automáticamente aquí
-    // Se gestiona manualmente desde AuthService
+    // TokenRenewalService is no longer initialized automatically here
+    // It is managed manually from AuthService
   ]
 };

@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../environments/environment';
 
-// Interfaces para los datos del backend
+// Interfaces for backend data
 interface ResourceDTO {
   id: number;
   name: string;
@@ -26,7 +26,7 @@ interface AppointmentDTO {
   resourceIds: number[] | null;
 }
 
-// Interfaces para crear/actualizar appointments
+// Interfaces for creating/updating appointments
 export interface CreateAppointmentRequest {
   subject: string;
   startTime: string;
@@ -45,7 +45,7 @@ export interface UpdateAppointmentRequest {
   active?: boolean;
 }
 
-// Interfaces para el frontend (Syncfusion)
+// Interfaces for frontend (Syncfusion)
 export interface Resource {
   Id: string;
   Name: string;
@@ -70,33 +70,33 @@ export class CalendarService {
   private readonly apiUrl = environment.apiUrl;
 
   /**
-   * Obtiene la lista de recursos (salas, oficinas, etc.)
+   * Gets the list of resources (rooms, offices, etc.)
    */
   getResources(): Observable<Resource[]> {
     return this.http.get<ResourceDTO[]>(`${this.apiUrl}/resources`).pipe(
       map(resources => resources
-        .filter(r => r.active) // Solo recursos activos
+        .filter(r => r.active) // Only active resources
         .map(r => this.mapResourceToFrontend(r))
       )
     );
   }
 
   /**
-   * Obtiene la lista de citas/appointments
+   * Gets the list of appointments
    */
   getAppointments(): Observable<Appointment[]> {
     return this.http.get<AppointmentDTO[]>(`${this.apiUrl}/appointments`).pipe(
       map(appointments => {
-        console.log('Appointments del backend (raw):', appointments);
+        console.log('Appointments from backend (raw):', appointments);
         return appointments
-          .filter(a => a.active) // Solo appointments activos
+          .filter(a => a.active) // Only active appointments
           .map(a => this.mapAppointmentToFrontend(a));
       })
     );
   }
 
   /**
-   * Mapea un recurso del backend al formato del frontend
+   * Maps a resource from backend to frontend format
    */
   private mapResourceToFrontend(resource: ResourceDTO): Resource {
     return {
@@ -108,7 +108,7 @@ export class CalendarService {
   }
 
   /**
-   * Mapea un appointment del backend al formato del frontend
+   * Maps an appointment from backend to frontend format
    */
   private mapAppointmentToFrontend(appointment: AppointmentDTO): Appointment {
     return {
@@ -122,20 +122,20 @@ export class CalendarService {
   }
 
   /**
-   * Crea un nuevo appointment
+   * Creates a new appointment
    */
   createAppointment(appointment: Appointment): Observable<Appointment> {
     const request = this.mapAppointmentToBackend(appointment);
-    console.log('Petición al backend (createAppointment):', request);
+    console.log('Request to backend (createAppointment):', request);
     console.log('resourceIds type:', typeof request.resourceIds, 'isArray:', Array.isArray(request.resourceIds));
-    console.log('JSON a enviar:', JSON.stringify(request));
+    console.log('JSON to send:', JSON.stringify(request));
     return this.http.post<AppointmentDTO>(`${this.apiUrl}/appointments`, request).pipe(
       map(dto => this.mapAppointmentToFrontend(dto))
     );
   }
 
   /**
-   * Actualiza un appointment existente
+   * Updates an existing appointment
    */
   updateAppointment(id: string, appointment: Appointment): Observable<Appointment> {
     const request: UpdateAppointmentRequest = {
@@ -151,24 +151,24 @@ export class CalendarService {
   }
 
   /**
-   * Elimina un appointment (lo marca como inactivo)
+   * Deletes an appointment (marks it as inactive)
    */
   deleteAppointment(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/appointments/${id}`);
   }
 
   /**
-   * Mapea un appointment del frontend al formato del backend
+   * Maps an appointment from frontend to backend format
    */
   private mapAppointmentToBackend(appointment: Appointment): CreateAppointmentRequest {
-    // Normalizar resourceIds a array de números
-    // ResourceIds siempre debe existir (1=mobile, 2=onlog)
+    // Normalize resourceIds to array of numbers
+    // ResourceIds must always exist (1=mobile, 2=onlog)
     if (!appointment.ResourceIds || appointment.ResourceIds.length === 0) {
-      throw new Error('ResourceIds es obligatorio (1=mobile, 2=onlog)');
+      throw new Error('ResourceIds è obbligatorio (1=mobile, 2=onlog)');
     }
 
     const resourceIds = appointment.ResourceIds.map(id => {
-      // Convertir a número, ya sea string o número
+      // Convert to number, whether string or number
       return typeof id === 'string' ? parseInt(id, 10) : id;
     });
 
@@ -183,10 +183,10 @@ export class CalendarService {
   }
 
   /**
-   * Convierte una fecha local a ISO string sin conversión a UTC
+   * Converts a local date to ISO string without UTC conversion
    */
   private formatDateTimeToUTC(date: Date): string {
-    // Tomar los componentes locales sin convertir a UTC
+    // Take local components without converting to UTC
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
@@ -194,14 +194,14 @@ export class CalendarService {
     const minutes = String(date.getMinutes()).padStart(2, '0');
     const seconds = String(date.getSeconds()).padStart(2, '0');
     
-    // Enviar sin el sufijo Z para que el backend lo interprete como LocalDateTime
+    // Send without the Z suffix so the backend interprets it as LocalDateTime
     return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
   }
 
   /**
-   * Convierte una fecha ISO string a Date como hora local
-   * El backend envía LocalDateTime sin zona horaria (sin "Z")
-   * JavaScript lo parsea correctamente como hora local
+   * Converts an ISO string date to Date as local time
+   * The backend sends LocalDateTime without timezone (without "Z")
+   * JavaScript parses it correctly as local time
    */
   private parseLocalDateTime(dateString: string): Date {
     return new Date(dateString);

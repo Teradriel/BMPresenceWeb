@@ -34,7 +34,7 @@ export class AuthService {
   private readonly USER_KEY = 'bmpresence_user';
   private readonly apiUrl = environment.apiUrl;
   
-  // **PROTECCIÓN ANTI-LOOP**: Flags para prevenir llamadas concurrentes
+  // **ANTI-LOOP PROTECTION**: Flags to prevent concurrent calls
   private isRestoringSession = false;
   private isRenewingToken = false;
   private isLoggingIn = false;
@@ -60,7 +60,7 @@ export class AuthService {
   }
 
   async login(username: string, password: string): Promise<void> {
-    // **PROTECCIÓN ANTI-LOOP**: Prevenir múltiples llamadas simultáneas
+    // **ANTI-LOOP PROTECTION**: Prevent multiple simultaneous calls
     if (this.isLoggingIn) {
       console.warn('Login already in progress, skipping duplicate call');
       return;
@@ -69,12 +69,12 @@ export class AuthService {
     this.isLoggingIn = true;
 
     try {
-      // Las peticiones de autenticación NO pasan por el interceptor (ver auth.interceptor.ts)
+      // Authentication requests DO NOT go through the interceptor (see auth.interceptor.ts)
       const data = await firstValueFrom(
         this.http.post<any>(`${this.apiUrl}/auth/login`, 
           { username, password },
           {
-            // Context para asegurar que esta petición no pase por el interceptor
+            // Context to ensure this request doesn't go through the interceptor
             context: new HttpContext().set(SKIP_AUTH_INTERCEPTOR, true)
           }
         )
@@ -91,7 +91,7 @@ export class AuthService {
       // Update observable
       this.currentUserSubject.next(data.user);
 
-      // Renovación automática DESACTIVADA
+      // Automatic renewal DISABLED
       // this.startTokenRenewal();
     } catch (error: any) {
       if (error?.error?.message) {
@@ -107,14 +107,14 @@ export class AuthService {
   }
 
   logout(): void {
-    // Detener renovación automática
+    // Stop automatic renewal
     this.stopTokenRenewal();
 
-    // Call logout endpoint (esta petición NO pasa por el interceptor)
+    // Call logout endpoint (this request does NOT go through the interceptor)
     this.http.post(`${this.apiUrl}/auth/logout`, {}, {
       context: new HttpContext().set(SKIP_AUTH_INTERCEPTOR, true)
     }).subscribe({
-      error: (err) => console.error('Error en logout:', err)
+      error: (err) => console.error('Error in logout:', err)
     });
 
     // Clear storage
@@ -130,7 +130,7 @@ export class AuthService {
 
   async register(data: RegisterData): Promise<void> {
     try {
-      // Las peticiones de autenticación NO pasan por el interceptor
+      // Authentication requests DO NOT go through the interceptor
       const result = await firstValueFrom(
         this.http.post<any>(`${this.apiUrl}/auth/register`, {
           name: data.name,
@@ -160,7 +160,7 @@ export class AuthService {
 
   async changePassword(currentPassword: string, newPassword: string): Promise<void> {
     try {
-      // Esta petición NO pasa por el interceptor para evitar loops
+      // This request does NOT go through the interceptor to avoid loops
       const result = await firstValueFrom(
         this.http.post<any>(`${this.apiUrl}/auth/change-password`, 
           { currentPassword, newPassword },
@@ -187,7 +187,7 @@ export class AuthService {
   async restoreSession(): Promise<void> {
     const token = this.getToken();
     
-    // **PROTECCIÓN ANTI-LOOP**: Evitar múltiples llamadas simultáneas
+    // **ANTI-LOOP PROTECTION**: Avoid multiple simultaneous calls
     if (!token || this.isRestoringSession) {
       return;
     }
@@ -195,7 +195,7 @@ export class AuthService {
     this.isRestoringSession = true;
 
     try {
-      // Esta petición NO pasa por el interceptor para evitar loops infinitos
+      // This request does NOT go through the interceptor to avoid infinite loops
       const data = await firstValueFrom(
         this.http.post<any>(`${this.apiUrl}/auth/restore-session`, 
           { token },
@@ -210,13 +210,13 @@ export class AuthService {
         this.setUser(data.user);
         this.currentUserSubject.next(data.user);
         
-        // Renovación automática DESACTIVADA
+        // Automatic renewal DISABLED
         // this.startTokenRenewal();
       } else {
         this.clearSession();
       }
     } catch (error) {
-      console.error('Error restaurando sesión:', error);
+      console.error('Error restoring session:', error);
       this.clearSession();
     } finally {
       this.isRestoringSession = false;
@@ -226,7 +226,7 @@ export class AuthService {
   public async renewToken(): Promise<void> {
     const token = this.getToken();
     
-    // **PROTECCIÓN ANTI-LOOP**: Evitar múltiples llamadas simultáneas
+    // **ANTI-LOOP PROTECTION**: Avoid multiple simultaneous calls
     if (!token || this.isRenewingToken) {
       return;
     }
@@ -234,7 +234,7 @@ export class AuthService {
     this.isRenewingToken = true;
 
     try {
-      // Esta petición NO pasa por el interceptor para evitar loops infinitos
+      // This request does NOT go through the interceptor to avoid infinite loops
       const data = await firstValueFrom(
         this.http.post<any>(`${this.apiUrl}/auth/renew-token`, 
           { token },
@@ -248,7 +248,7 @@ export class AuthService {
         this.setToken(data.token);
       }
     } catch (error) {
-      console.error('Error renovando token:', error);
+      console.error('Error renewing token:', error);
     } finally {
       this.isRenewingToken = false;
     }
@@ -290,7 +290,7 @@ export class AuthService {
   }
 
   /**
-   * Actualiza la información del usuario actual en el estado y storage
+   * Updates the current user information in state and storage
    */
   public updateCurrentUser(user: User): void {
     this.setUser(user);
@@ -298,14 +298,14 @@ export class AuthService {
   }
 
   /**
-   * Inicia el servicio de renovación automática de tokens.
-   * Usa lazy loading para evitar dependencia circular.
+   * Starts the automatic token renewal service.
+   * Uses lazy loading to avoid circular dependency.
    */
   private startTokenRenewal(): void {
     if (!this.tokenRenewalService) {
-      // Importación dinámica para evitar dependencia circular
+      // Dynamic import to avoid circular dependency
       import('./token-renewal.service').then(({ TokenRenewalService }) => {
-        // Crear instancia manualmente con las dependencias necesarias
+        // Create instance manually with necessary dependencies
         this.tokenRenewalService = new TokenRenewalService(this);
         this.tokenRenewalService.startTokenRenewal();
       }).catch((err: any) => {
@@ -317,7 +317,7 @@ export class AuthService {
   }
 
   /**
-   * Detiene el servicio de renovación de tokens.
+   * Stops the token renewal service.
    */
   private stopTokenRenewal(): void {
     if (this.tokenRenewalService) {

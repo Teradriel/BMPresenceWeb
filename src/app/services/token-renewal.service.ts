@@ -10,25 +10,25 @@ export class TokenRenewalService {
   private isStarted = false;
 
   constructor(private authService: AuthService) {
-    // NO iniciar automáticamente, esperar a que se llame explícitamente
+    // DO NOT start automatically, wait for explicit call
   }
 
   /**
-   * Inicia la renovación automática de tokens.
-   * DESACTIVADO TEMPORALMENTE - No hace nada.
+   * Starts automatic token renewal.
+   * TEMPORARILY DISABLED - Does nothing.
    */
   public startTokenRenewal(): void {
     console.debug('Token renewal DISABLED - automatic renewal is turned off');
     return;
     
-    /* CÓDIGO DESACTIVADO
-    // Evitar múltiples inicios
+    /* DISABLED CODE
+    // Avoid multiple starts
     if (this.isStarted) {
       console.debug('Token renewal already started, skipping');
       return;
     }
 
-    // Solo iniciar si hay sesión activa
+    // Only start if there's an active session
     if (!this.authService.isAuthenticated) {
       console.debug('No authenticated session, skipping token renewal start');
       return;
@@ -45,10 +45,10 @@ export class TokenRenewalService {
     this.renewalInterval = setInterval(() => {
       if (this.authService.isAuthenticated) {
         this.authService.renewToken().catch((err: any) => {
-          console.error('Errore durante il rinnovo automatico del token:', err);
+          console.error('Error during automatic token renewal:', err);
         });
       } else {
-        // Si la sesión ya no está activa, detener la renovación
+        // If the session is no longer active, stop renewal
         this.stopTokenRenewal();
       }
     }, intervalMs);
@@ -59,8 +59,8 @@ export class TokenRenewalService {
   }
 
   /**
-   * Detiene la renovación automática de tokens.
-   * Debe ser llamado al hacer logout.
+   * Stops automatic token renewal.
+   * Should be called on logout.
    */
   public stopTokenRenewal(): void {
     if (this.renewalInterval) {
