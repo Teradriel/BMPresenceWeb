@@ -288,6 +288,14 @@ export class AuthService {
   }
 
   /**
+   * Actualiza la información del usuario actual en el estado y storage
+   */
+  public updateCurrentUser(user: User): void {
+    this.setUser(user);
+    this.currentUserSubject.next(user);
+  }
+
+  /**
    * Inicia el servicio de renovación automática de tokens.
    * Usa lazy loading para evitar dependencia circular.
    */

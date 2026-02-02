@@ -46,8 +46,7 @@ export class UserPageComponent {
   };
 
   onEditProfile(): void {
-    console.log('Edit profile clicked');
-    // Implement edit profile logic
+    this.router.navigate(['/edit-user']);
   }
 
   onChangePassword(): void {

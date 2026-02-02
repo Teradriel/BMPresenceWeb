@@ -41,6 +41,13 @@ export class UserService {
   }
 
   /**
+   * Actualiza la información de un usuario
+   */
+  updateUser(userId: string, data: Partial<UserDTO>): Observable<UserDTO> {
+    return this.http.put<UserDTO>(`${this.apiUrl}/users/${userId}`, data);
+  }
+
+  /**
    * Mapea un usuario a formato de visualización
    */
   private mapUserToDisplay(user: UserDTO): UserDisplay {

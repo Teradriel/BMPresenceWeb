@@ -1,0 +1,83 @@
+<div class="edit-user-container">
+  <div class="edit-user-card">
+    <!-- Header -->
+    <div class="header">
+      <h1 class="title">Modifica Profilo</h1>
+      <p class="subtitle">Aggiorna le tue informazioni personali</p>
+    </div>
+
+    <!-- Formulario -->
+    <form [formGroup]="editForm" (ngSubmit)="saveChanges()" class="form">
+      <div class="form-content">
+        <!-- Campo Nome -->
+        <div class="form-group">
+          <input
+            type="text"
+            formControlName="name"
+            placeholder="Nome"
+            class="form-input"
+            [class.error]="hasError('name')"
+          />
+          <span class="error-message" *ngIf="hasError('name')">
+            {{ getErrorMessage("name") }}
+          </span>
+        </div>
+
+        <!-- Campo Cognome -->
+        <div class="form-group">
+          <input
+            type="text"
+            formControlName="lastName"
+            placeholder="Cognome"
+            class="form-input"
+            [class.error]="hasError('lastName')"
+          />
+          <span class="error-message" *ngIf="hasError('lastName')">
+            {{ getErrorMessage("lastName") }}
+          </span>
+        </div>
+
+        <!-- Campo Username -->
+        <div class="form-group">
+          <input
+            type="text"
+            formControlName="username"
+            placeholder="Nome utente"
+            class="form-input"
+            [class.error]="hasError('username')"
+          />
+          <span class="error-message" *ngIf="hasError('username')">
+            {{ getErrorMessage("username") }}
+          </span>
+        </div>
+
+        <!-- Mensaje de error general -->
+        <div class="error-message-general" *ngIf="errorMessage">
+          {{ errorMessage }}
+        </div>
+
+        <!-- Botones -->
+        <div class="button-group">
+          <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+            <span *ngIf="!isLoading">Salva Modifiche</span>
+            <span *ngIf="isLoading">Salvando...</span>
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-secondary"
+            [disabled]="isLoading"
+            (click)="cancel()"
+          >
+            Annulla
+          </button>
+        </div>
+      </div>
+    </form>
+
+    <!-- Loading Indicator -->
+    <div class="loading-overlay" *ngIf="isLoading">
+      <div class="spinner"></div>
+    </div>
+  </div>
+</div>
