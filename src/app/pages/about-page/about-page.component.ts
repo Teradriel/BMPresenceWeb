@@ -15,7 +15,7 @@ export class AboutPageComponent {
   constructor(private router: Router) {}
 
   onSupportClicked(): void {
-    window.location.href = 'mailto:support@bmpresence.com?subject=Richiesta Supporto BMPresence';
+    window.location.href = 'mailto:luca.terzariol@bluemobility.it?subject=Richiesta Supporto BMPresence';
   }
 
   onCheckUpdatesClicked(): void {

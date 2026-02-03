@@ -13,6 +13,8 @@ export interface User {
   lastName?: string;
   isAdmin?: boolean;
   active?: boolean;
+  createdAt?: Date;
+  lastActiveAt?: Date | null;
 }
 
 export interface RegisterData {
