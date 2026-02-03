@@ -3,15 +3,18 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  width: 100vw;
   padding: 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  margin: 0;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  box-sizing: border-box;
 }
 
 .edit-user-card {
   position: relative;
   background: white;
-  border-radius: 16px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   padding: 40px;
   width: 100%;
   max-width: 500px;
@@ -26,13 +29,13 @@
 .title {
   font-size: 28px;
   font-weight: 700;
-  color: #667eea;
+  color: var(--primary, #00508C);
   margin: 0 0 10px 0;
 }
 
 .subtitle {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--gray-600, #404040);
   margin: 0;
 }
 
@@ -66,8 +69,8 @@
 
 .form-input:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: var(--primary, #00508C);
+  box-shadow: 0 0 0 3px rgba(0, 80, 140, 0.1);
 }
 
 .form-input.error {
@@ -115,14 +118,14 @@
 }
 
 .btn-primary {
-  background: #667eea;
+  background: var(--primary, #00508C);
   color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #5568d3;
+  background: var(--primary-dark, #007AA8);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 80, 140, 0.4);
 }
 
 .btn-secondary {
@@ -155,7 +158,7 @@
   width: 50px;
   height: 50px;
   border: 4px solid #f3f4f6;
-  border-top-color: #667eea;
+  border-top-color: var(--primary, #00508C);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
