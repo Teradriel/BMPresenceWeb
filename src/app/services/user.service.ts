@@ -11,6 +11,8 @@ export interface UserDTO {
   lastName?: string;
   isAdmin?: boolean;
   active?: boolean;
+  createdAt?: Date;
+  lastActiveAt?: Date | null;
 }
 
 export interface UserDisplay {
