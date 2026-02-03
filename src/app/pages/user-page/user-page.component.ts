@@ -33,8 +33,8 @@ export class UserPageComponent {
       this.user.lastName = currentUser.lastName || '';
       this.user.username = currentUser.username || '';
       this.user.isAdmin = currentUser.isAdmin || false;
-      this.user.createdAt = currentUser.createdAt || new Date(); 
-      this.user.lastActiveAt = currentUser.lastActiveAt || null; 
+      this.user.createdAt = currentUser.createdAt ? new Date(currentUser.createdAt) : new Date();
+      this.user.lastActiveAt = currentUser.lastActiveAt ? new Date(currentUser.lastActiveAt) : null;
     }
   }
 
