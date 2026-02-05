@@ -15,6 +15,8 @@ export interface User {
   active?: boolean;
   createdAt?: Date;
   lastActiveAt?: Date | null;
+  forceChangePassword?: boolean;
+  mustChangePassword?: boolean;
 }
 
 export interface RegisterData {
@@ -34,6 +36,7 @@ export class AuthService {
   public currentUser: Observable<User | null>;
   private readonly TOKEN_KEY = 'bmpresence_token';
   private readonly USER_KEY = 'bmpresence_user';
+  private readonly FORCE_CHANGE_PASSWORD_KEY = 'bmpresence_force_change_password';
   private readonly apiUrl = environment.apiUrl;
   
   // **ANTI-LOOP PROTECTION**: Flags to prevent concurrent calls
@@ -90,6 +93,21 @@ export class AuthService {
       // Save token and user
       this.setToken(data.token);
       this.setUser(data.user);
+      
+      // Check if user must change password on next login
+      console.log('🔍 Login response data:', data);
+      console.log('🔍 user.mustChangePassword value:', data.user?.mustChangePassword);
+      
+      // El backend puede devolver el flag en data.forceChangeOnNextLogin O en data.user.mustChangePassword
+      const mustChange = data.forceChangeOnNextLogin === true || data.user?.mustChangePassword === true;
+      
+      if (mustChange) {
+        console.log('✅ Setting force change password flag');
+        this.setForceChangePassword(true);
+      } else {
+        console.log('❌ Clearing force change password flag');
+        this.clearForceChangePassword();
+      }
       
       // Update observable
       this.currentUserSubject.next(data.user);
@@ -297,7 +315,31 @@ export class AuthService {
     this.stopTokenRenewal();
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
+    localStorage.removeItem(this.FORCE_CHANGE_PASSWORD_KEY);
     this.currentUserSubject.next(null);
+  }
+
+  /**
+   * Verifica si el usuario debe cambiar su password
+   */
+  public mustChangePassword(): boolean {
+    const flag = localStorage.getItem(this.FORCE_CHANGE_PASSWORD_KEY);
+    console.log('🔍 Checking force change password flag:', flag);
+    return flag === 'true';
+  }
+
+  /**
+   * Establece el flag de cambio forzado de password
+   */
+  private setForceChangePassword(value: boolean): void {
+    localStorage.setItem(this.FORCE_CHANGE_PASSWORD_KEY, value.toString());
+  }
+
+  /**
+   * Limpia el flag de cambio forzado de password
+   */
+  public clearForceChangePassword(): void {
+    localStorage.removeItem(this.FORCE_CHANGE_PASSWORD_KEY);
   }
 
   /**

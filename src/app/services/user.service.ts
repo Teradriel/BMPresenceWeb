@@ -72,6 +72,17 @@ export class UserService {
   }
 
   /**
+   * Admin resets a user's password
+   */
+  adminResetPassword(userId: string, newPassword: string, forceChangeOnNextLogin: boolean = true): Observable<any> {
+    return this.http.post(`${this.apiUrl}/auth/admin-reset-password`, {
+      userId,
+      newPassword,
+      forceChangeOnNextLogin
+    });
+  }
+
+  /**
    * Updates user information
    */
   updateUser(userId: string, data: Partial<UserDTO>): Observable<UserDTO> {
