@@ -1,0 +1,79 @@
+<div class="users-list-container">
+  <div class="page-header">
+    <h1>Gestione Utenti</h1>
+    <button
+      class="refresh-button"
+      (click)="loadUsers()"
+      [disabled]="isBusy"
+      title="Aggiorna lista utenti"
+    >
+      <span class="refresh-icon">🔄</span>
+      Aggiorna
+    </button>
+  </div>
+
+  <!-- Error message -->
+  @if (errorMessage) {
+    <div class="error-message">
+      {{ errorMessage }}
+    </div>
+  }
+
+  <!-- Loading indicator -->
+  @if (isBusy) {
+    <div class="loading-overlay">
+      <div class="spinner"></div>
+      <p>Caricamento in corso...</p>
+    </div>
+  }
+
+  <!-- Users table -->
+  @if (!isBusy && users.length > 0) {
+    <div class="table-container">
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Cognome</th>
+            <th>Ruolo</th>
+            <th>Data Registrazione</th>
+            <th>Ultima Attività</th>
+            <th>Azioni</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of users; track user.id) {
+            <tr>
+              <td>{{ user.name }}</td>
+              <td>{{ user.lastName }}</td>
+              <td>
+                <span class="role-badge" [class.admin]="user.isAdmin">
+                  {{ getUserRole(user.isAdmin) }}
+                </span>
+              </td>
+              <td>{{ formatDate(user.createdAt) }}</td>
+              <td>{{ formatDate(user.lastActiveAt) }}</td>
+              <td>
+                <button
+                  class="delete-button"
+                  (click)="deleteUser(user)"
+                  [disabled]="isBusy"
+                  title="Elimina utente"
+                >
+                  🗑️ Elimina
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  <!-- Empty state -->
+  @if (!isBusy && users.length === 0 && !errorMessage) {
+    <div class="empty-state">
+      <p>Nessun utente trovato.</p>
+    </div>
+  }
+</div>

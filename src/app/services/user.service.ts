@@ -11,6 +11,8 @@ export interface UserDTO {
   lastName?: string;
   isAdmin?: boolean;
   active?: boolean;
+  createdAt?: string;
+  lastActiveAt?: string;
 }
 
 export interface UserDisplay {
@@ -19,6 +21,16 @@ export interface UserDisplay {
   name?: string;
   lastName?: string;
   fullName: string;
+}
+
+export interface UserListItem {
+  id: string;
+  username: string;
+  name: string;
+  lastName: string;
+  createdAt: Date;
+  lastActiveAt: Date | null;
+  isAdmin: boolean;
 }
 
 @Injectable({
@@ -33,11 +45,30 @@ export class UserService {
    */
   getUsers(): Observable<UserDisplay[]> {
     return this.http.get<UserDTO[]>(`${this.apiUrl}/users`).pipe(
-      map(users => users
-        .filter(u => u.active)
-        .map(u => this.mapUserToDisplay(u))
+      map((users: UserDTO[]) => users
+        .filter((u: UserDTO) => u.active)
+        .map((u: UserDTO) => this.mapUserToDisplay(u))
       )
     );
+  }
+
+  /**
+   * Gets all users with detailed information for admin list
+   */
+  getAllUsersDetailed(): Observable<UserListItem[]> {
+    return this.http.get<UserDTO[]>(`${this.apiUrl}/users`).pipe(
+      map((users: UserDTO[]) => users
+        .filter((u: UserDTO) => u.active)
+        .map((u: UserDTO) => this.mapUserToListItem(u))
+      )
+    );
+  }
+
+  /**
+   * Deletes a user by ID
+   */
+  deleteUser(userId: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/users/${userId}`);
   }
 
   /**
@@ -61,6 +92,21 @@ export class UserService {
       name: user.name,
       lastName: user.lastName,
       fullName
+    };
+  }
+
+  /**
+   * Maps a user to list item format with full details
+   */
+  private mapUserToListItem(user: UserDTO): UserListItem {
+    return {
+      id: user.id,
+      username: user.username,
+      name: user.name || '',
+      lastName: user.lastName || '',
+      createdAt: user.createdAt ? new Date(user.createdAt) : new Date(),
+      lastActiveAt: user.lastActiveAt ? new Date(user.lastActiveAt) : null,
+      isAdmin: user.isAdmin || false
     };
   }
 }
