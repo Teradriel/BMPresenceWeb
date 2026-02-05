@@ -40,9 +40,10 @@ export class AuthService {
   private isLoggingIn = false;
 
   private http = inject(HttpClient);
+  private router = inject(Router);
   private tokenRenewalService?: any; // Lazy injection
 
-  constructor(private router: Router) {
+  constructor() {
     const storedUser = this.getStoredUser();
     this.currentUserSubject = new BehaviorSubject<User | null>(storedUser);
     this.currentUser = this.currentUserSubject.asObservable();

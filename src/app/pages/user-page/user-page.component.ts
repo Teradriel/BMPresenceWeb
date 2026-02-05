@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -20,12 +20,11 @@ interface User {
   styleUrl: './user-page.component.css'
 })
 export class UserPageComponent {
+  private router = inject(Router);
+  private authService = inject(AuthService);
   isBusy = false;
 
-  constructor(
-    private router: Router,
-    private authService: AuthService
-  ) {
+  constructor() {
     // Load current user data if available
     const currentUser = this.authService.currentUserValue;
     if (currentUser) {

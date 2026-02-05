@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
@@ -10,9 +10,8 @@ import { Router } from '@angular/router';
   styleUrl: './about-page.component.css'
 })
 export class AboutPageComponent {
+  private router = inject(Router);
   isBusy = false;
-
-  constructor(private router: Router) {}
 
   onSupportClicked(): void {
     window.location.href = 'mailto:luca.terzariol@bluemobility.it?subject=Richiesta Supporto BMPresence';

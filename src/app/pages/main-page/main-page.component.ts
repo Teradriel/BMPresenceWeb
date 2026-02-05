@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService, User } from '../../services/auth.service';
 import { CalendarService, Resource, Appointment } from '../../services/calendar.service';
@@ -87,11 +87,11 @@ export class MainPageComponent implements OnInit {
   users: UserDisplay[] = [];
   isEditMode = false;
 
-  constructor(
-    private authService: AuthService,
-    private calendarService: CalendarService,
-    private userService: UserService
-  ) {
+  private authService = inject(AuthService);
+  private calendarService = inject(CalendarService);
+  private userService = inject(UserService);
+
+  constructor() {
     const user = this.authService.currentUserValue;
     this.currentUser = user || undefined;
     this.currentUserName = user?.name || user?.username || 'Utente';
