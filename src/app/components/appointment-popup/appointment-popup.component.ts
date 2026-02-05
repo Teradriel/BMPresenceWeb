@@ -61,4 +61,12 @@ export class AppointmentPopupComponent {
   get isAssignButtonEnabled(): boolean {
     return !!this.selectedUser;
   }
+
+  get sortedUsers(): UserDisplay[] {
+    return [...this.users].sort((a, b) => {
+      const nameA = a.fullName || `${a.name} ${a.lastName}` || a.username;
+      const nameB = b.fullName || `${b.name} ${b.lastName}` || b.username;
+      return nameA.localeCompare(nameB, 'es', { sensitivity: 'base' });
+    });
+  }
 }
