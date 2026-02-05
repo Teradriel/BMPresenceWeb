@@ -13,6 +13,8 @@ export interface User {
   lastName?: string;
   isAdmin?: boolean;
   active?: boolean;
+  createdAt?: Date;
+  lastActiveAt?: Date | null;
 }
 
 export interface RegisterData {
@@ -271,7 +273,15 @@ export class AuthService {
     const userJson = localStorage.getItem(this.USER_KEY);
     if (userJson) {
       try {
-        return JSON.parse(userJson);
+        const user = JSON.parse(userJson);
+        // Convert date strings to Date objects
+        if (user.createdAt) {
+          user.createdAt = new Date(user.createdAt);
+        }
+        if (user.lastActiveAt) {
+          user.lastActiveAt = new Date(user.lastActiveAt);
+        }
+        return user;
       } catch {
         return null;
       }

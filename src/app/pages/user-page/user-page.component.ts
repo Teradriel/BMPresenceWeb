@@ -30,18 +30,20 @@ export class UserPageComponent {
     if (currentUser) {
       this.user.name = currentUser.name || 'Utente';
       this.user.lastName = currentUser.lastName || '';
-      this.user.username = currentUser.username;
+      this.user.username = currentUser.username || '';
+      this.user.isAdmin = currentUser.isAdmin || false;
+      this.user.createdAt = currentUser.createdAt ? new Date(currentUser.createdAt) : new Date();
+      this.user.lastActiveAt = currentUser.lastActiveAt ? new Date(currentUser.lastActiveAt) : null;
     }
   }
 
-  // Mock user data - replace with actual service call
   user: User = {
-    name: 'Mario',
-    lastName: 'Rossi',
-    username: 'mario.rossi',
-    isAdmin: true,
-    createdAt: new Date('2024-01-15T10:30:00'),
-    lastActiveAt: new Date('2026-01-27T09:15:00')
+    name: '',
+    lastName: '',
+    username: '',
+    isAdmin: false,
+    createdAt: new Date(),
+    lastActiveAt: null
   };
 
   onEditProfile(): void {
