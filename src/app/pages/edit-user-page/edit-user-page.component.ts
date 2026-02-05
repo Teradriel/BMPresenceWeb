@@ -3,13 +3,27 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService, User } from '../../services/auth.service';
-import { UserService } from '../../services/user.service';
+import { UserService, UserDTO } from '../../services/user.service';
 import { firstValueFrom } from 'rxjs';
 
 interface UpdateUserData {
   name: string;
   lastName: string;
   username: string;
+}
+
+function mapDtoToUser(dto: UserDTO): User {
+  return {
+    id: dto.id,
+    username: dto.username,
+    email: dto.email,
+    name: dto.name,
+    lastName: dto.lastName,
+    isAdmin: dto.isAdmin,
+    active: dto.active,
+    createdAt: dto.createdAt ? new Date(dto.createdAt) : undefined,
+    lastActiveAt: dto.lastActiveAt ? new Date(dto.lastActiveAt) : null
+  };
 }
 
 @Component({
@@ -67,11 +81,12 @@ export class EditUserPageComponent implements OnInit {
       const updateData: UpdateUserData = this.editForm.value;
       
       // Call user service
-      const updatedUser = await firstValueFrom(
+      const updatedUserDto = await firstValueFrom(
         this.userService.updateUser(this.currentUser.id, updateData)
       );
 
-      // Update user in authentication service
+      // Convert DTO to User and update in authentication service
+      const updatedUser = mapDtoToUser(updatedUserDto);
       this.authService.updateCurrentUser(updatedUser);
 
       // Navigate back to profile page

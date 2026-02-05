@@ -25,7 +25,7 @@
         <label for="userSelect">Scegli un collega</label>
         <select id="userSelect" class="form-control" [(ngModel)]="selectedUser">
           <option [ngValue]="undefined">Seleziona un utente...</option>
-          <option *ngFor="let user of users" [ngValue]="user">
+          <option *ngFor="let user of sortedUsers" [ngValue]="user">
             {{
               user.fullName || user.name + " " + user.lastName || user.username
             }}
