@@ -6,15 +6,10 @@
 
     <div class="popup-body">
       <div class="appointment-info" *ngIf="appointmentData">
-        <p><strong>Risorsa:</strong> {{ appointmentData.resourceName }}</p>
+        <p>{{ appointmentData.resourceName }}</p>
         <p>
           <strong>Data:</strong>
           {{ appointmentData.startTime | date: "dd/MM/yyyy" }}
-        </p>
-        <p>
-          <strong>Ora:</strong>
-          {{ appointmentData.startTime | date: "HH:mm" }} -
-          {{ appointmentData.endTime | date: "HH:mm" }}
         </p>
       </div>
 

@@ -23,10 +23,10 @@ export class AppComponent {
   showNavigation = true;
   
   allTabs: Tab[] = [
-    { label: 'Principale', path: '/main', icon: '🏠' },
-    { label: 'Profilo', path: '/user', icon: '👤' },
-    { label: 'Utenti', path: '/users-list', icon: '👥', adminOnly: true },
-    { label: 'Informazioni', path: '/about', icon: 'ℹ️' }
+    { label: 'Principale', path: '/main', icon: '🏡' },
+    { label: 'Profilo', path: '/user', icon: '🤴🏻' },
+    { label: 'Utenti', path: '/users-list', icon: '🐒', adminOnly: true },
+    { label: 'Informazioni', path: '/about', icon: '☣' }
   ];
 
   tabs: Tab[] = [];
