@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -12,6 +12,9 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './register-page.component.css'
 })
 export class RegisterPageComponent {
+  private router = inject(Router);
+  private authService = inject(AuthService);
+  
   name: string = '';
   lastName: string = '';
   username: string = '';
@@ -19,11 +22,6 @@ export class RegisterPageComponent {
   confirmPassword: string = '';
   errorMessage: string = '';
   isLoading: boolean = false;
-
-  constructor(
-    private router: Router,
-    private authService: AuthService
-  ) {}
 
   async onRegister() {
     this.errorMessage = '';

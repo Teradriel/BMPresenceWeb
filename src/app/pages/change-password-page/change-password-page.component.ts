@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -12,16 +12,14 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './change-password-page.component.css'
 })
 export class ChangePasswordPageComponent {
+  private router = inject(Router);
+  private authService = inject(AuthService);
+  
   currentPassword: string = '';
   newPassword: string = '';
   confirmPassword: string = '';
   errorMessage: string = '';
   isBusy: boolean = false;
-
-  constructor(
-    private router: Router,
-    private authService: AuthService
-  ) {}
 
   async onChangePassword() {
     this.errorMessage = '';

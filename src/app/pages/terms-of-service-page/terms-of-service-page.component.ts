@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
   styleUrl: './terms-of-service-page.component.css'
 })
 export class TermsOfServicePageComponent {
-  constructor(private router: Router) {}
+  private router = inject(Router);
 
   onAccept(): void {
     this.router.navigate(['/about']);

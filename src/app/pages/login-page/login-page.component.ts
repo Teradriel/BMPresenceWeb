@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -12,17 +12,17 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './login-page.component.css'
 })
 export class LoginPageComponent {
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private authService = inject(AuthService);
+  
   username: string = '';
   password: string = '';
   errorMessage: string = '';
   isBusy: boolean = false;
   returnUrl: string = '/main';
 
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private authService: AuthService
-  ) {
+  constructor() {
     // Get return URL if exists
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/main';
   }
