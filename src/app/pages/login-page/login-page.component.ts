@@ -40,7 +40,21 @@ export class LoginPageComponent {
     try {
       await this.authService.login(this.username, this.password);
       
-      // If login successful, redirect to return URL or to main
+      // Verificar si el usuario debe cambiar su contraseña
+      const mustChange = this.authService.mustChangePassword();
+      console.log('🔍 Must change password?', mustChange);
+      
+      if (mustChange) {
+        console.log('🚀 Redirecting to change-password');
+        // Redirigir a cambio de contraseña forzado
+        this.router.navigate(['/change-password'], { 
+          queryParams: { forced: 'true' }
+        });
+        return;
+      }
+      
+      console.log('🚀 Redirecting to', this.returnUrl);
+      // Si login exitoso y no requiere cambio de contraseña, redirigir a return URL o a main
       this.router.navigate([this.returnUrl]);
     } catch (error) {
       this.errorMessage = error instanceof Error ? error.message : 'Nome utente o password non corretti';

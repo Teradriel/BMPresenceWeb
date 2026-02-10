@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -13,6 +13,7 @@ import { AuthService } from '../../services/auth.service';
 })
 export class ChangePasswordPageComponent {
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private authService = inject(AuthService);
   
   currentPassword: string = '';
@@ -20,13 +21,28 @@ export class ChangePasswordPageComponent {
   confirmPassword: string = '';
   errorMessage: string = '';
   isBusy: boolean = false;
+  isForced: boolean = false;
+
+  constructor() {
+    // Verificar si es un cambio forzado
+    this.route.queryParams.subscribe(params => {
+      this.isForced = params['forced'] === 'true' || this.authService.mustChangePassword();
+    });
+  }
 
   async onChangePassword() {
     this.errorMessage = '';
 
-    // Validations
-    if (!this.currentPassword || !this.newPassword || !this.confirmPassword) {
-      this.errorMessage = 'Tutti i campi sono obbligatori';
+    // Validaciones
+    if (!this.currentPassword) {
+      this.errorMessage = this.isForced 
+        ? 'Inserisci la password temporale assegnata'
+        : 'Inserisci la password attuale';
+      return;
+    }
+
+    if (!this.newPassword || !this.confirmPassword) {
+      this.errorMessage = 'Tutti i campi obbligatori devono essere compilati';
       return;
     }
 
@@ -50,8 +66,17 @@ export class ChangePasswordPageComponent {
     try {
       await this.authService.changePassword(this.currentPassword, this.newPassword);
       
-      // Password change successful, go back to previous page
-      this.router.navigate(['/user']);
+      // Limpiar el flag de cambio forzado
+      this.authService.clearForceChangePassword();
+      
+      // Cambio de password exitoso, redirigir
+      if (this.isForced) {
+        // Si era forzado, ir a la página principal
+        this.router.navigate(['/main']);
+      } else {
+        // Si era cambio normal, volver a perfil de usuario
+        this.router.navigate(['/user']);
+      }
     } catch (error) {
       this.errorMessage = error instanceof Error ? error.message : 'Errore durante il cambio password';
     } finally {
@@ -60,6 +85,11 @@ export class ChangePasswordPageComponent {
   }
 
   onCancel() {
-    this.router.navigate(['/user']);
+    if (this.isForced) {
+      // Si es cambio forzado, no se puede cancelar, cerrar sesión
+      this.authService.logout();
+    } else {
+      this.router.navigate(['/user']);
+    }
   }
 }

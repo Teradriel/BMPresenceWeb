@@ -55,6 +55,14 @@
               <td>{{ formatDate(user.lastActiveAt) }}</td>
               <td>
                 <button
+                  class="reset-button"
+                  (click)="openResetPasswordDialog(user)"
+                  [disabled]="isBusy"
+                  title="Resetta password"
+                >
+                  🔑 Resetta Password
+                </button>
+                <button
                   class="delete-button"
                   (click)="deleteUser(user)"
                   [disabled]="isBusy"
@@ -74,6 +82,78 @@
   @if (!isBusy && users.length === 0 && !errorMessage) {
     <div class="empty-state">
       <p>Nessun utente trovato.</p>
+    </div>
+  }
+
+  <!-- Reset Password Dialog -->
+  @if (showResetDialog && selectedUser) {
+    <div class="modal-overlay" (click)="closeResetDialog()">
+      <div class="modal-dialog" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Resetta Password</h2>
+          <button
+            class="close-button"
+            (click)="closeResetDialog()"
+            [disabled]="isBusy"
+          >
+            ×
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <p class="user-info">
+            Resetta la password per:
+            <strong>{{ selectedUser.name }} {{ selectedUser.lastName }}</strong>
+          </p>
+
+          <div class="form-group">
+            <label for="newPassword">Nuova Password Temporale:</label>
+            <input
+              id="newPassword"
+              type="password"
+              class="input-field"
+              placeholder="Nuova password (min 6 caratteri)"
+              [(ngModel)]="newPassword"
+              [disabled]="isBusy"
+              (keyup.enter)="executeResetPassword()"
+              autofocus
+            />
+          </div>
+
+          <div class="warning-message">
+            ⚠️ L'utente dovrà cambiare questa password al prossimo accesso.
+          </div>
+
+          @if (resetErrorMessage) {
+            <div class="error-message">
+              {{ resetErrorMessage }}
+            </div>
+          }
+        </div>
+
+        <div class="modal-footer">
+          <button
+            class="confirm-button"
+            (click)="executeResetPassword()"
+            [disabled]="isBusy || !newPassword"
+          >
+            {{ isBusy ? "Resettando..." : "Resetta Password" }}
+          </button>
+          <button
+            class="cancel-button"
+            (click)="closeResetDialog()"
+            [disabled]="isBusy"
+          >
+            Annulla
+          </button>
+        </div>
+
+        @if (isBusy) {
+          <div class="loading-indicator">
+            <div class="spinner"></div>
+          </div>
+        }
+      </div>
     </div>
   }
 </div>
