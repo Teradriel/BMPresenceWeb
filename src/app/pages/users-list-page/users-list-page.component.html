@@ -33,34 +33,37 @@
       <table class="users-table">
         <thead>
           <tr>
-            <th>Nome</th>
-            <th>Cognome</th>
-            <th>Ruolo</th>
-            <th>Data Registrazione</th>
-            <th>Ultima Attività</th>
-            <th>Azioni</th>
+            <th class="user-info-header">Nome Cognome (Username)</th>
+            <th class="role-header">Ruolo</th>
+            <th class="date-header">Data Creazione</th>
+            <th class="date-header">Ultima Attività</th>
+            <th class="actions-header">Azioni</th>
           </tr>
         </thead>
         <tbody>
           @for (user of users; track user.id) {
-            <tr>
-              <td>{{ user.name }}</td>
-              <td>{{ user.lastName }}</td>
-              <td>
+            <tr class="user-row">
+              <td class="user-info-cell">
+                <span class="user-name"
+                  >{{ user.name }} {{ user.lastName }}</span
+                >
+                <span class="username">({{ user.username }})</span>
+              </td>
+              <td class="role-cell">
                 <span class="role-badge" [class.admin]="user.isAdmin">
                   {{ getUserRole(user.isAdmin) }}
                 </span>
               </td>
-              <td>{{ formatDate(user.createdAt) }}</td>
-              <td>{{ formatDate(user.lastActiveAt) }}</td>
-              <td>
+              <td class="date-cell">{{ formatDateShort(user.createdAt) }}</td>
+              <td class="date-cell">{{ formatDate(user.lastActiveAt) }}</td>
+              <td class="actions-cell">
                 <button
                   class="reset-button"
                   (click)="openResetPasswordDialog(user)"
                   [disabled]="isBusy"
                   title="Resetta password"
                 >
-                  🔑 Resetta Password
+                  Reset
                 </button>
                 <button
                   class="delete-button"
@@ -68,7 +71,7 @@
                   [disabled]="isBusy"
                   title="Elimina utente"
                 >
-                  🗑️ Elimina
+                  Elimina
                 </button>
               </td>
             </tr>

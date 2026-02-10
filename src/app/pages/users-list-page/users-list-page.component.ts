@@ -90,6 +90,16 @@ export class UsersListPageComponent implements OnInit {
     }).format(date);
   }
 
+  formatDateShort(date: Date | null): string {
+    if (!date) return 'Mai';
+    
+    return new Intl.DateTimeFormat('it-IT', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    }).format(date);
+  }
+
   getUserRole(isAdmin: boolean): string {
     return isAdmin ? 'Admin' : 'Utente';
   }

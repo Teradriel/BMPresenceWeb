@@ -92,24 +92,44 @@
 }
 
 .users-table thead {
-  background-color: #f8f9fa;
+  background-color: #007bff;
 }
 
 .users-table th {
   padding: 15px;
   text-align: left;
   font-weight: 600;
-  color: #495057;
-  border-bottom: 2px solid #dee2e6;
+  color: white;
+  border-bottom: 2px solid #0056b3;
+}
+
+.user-info-header {
+  width: 35%;
+}
+
+.role-header {
+  width: 15%;
+  text-align: center;
+}
+
+.date-header {
+  width: 18%;
+  text-align: center;
+}
+
+.actions-header {
+  width: 14%;
+  text-align: center;
 }
 
 .users-table tbody tr {
   border-bottom: 1px solid #dee2e6;
-  transition: background-color 0.2s;
+  transition: background-color 0.15s ease;
 }
 
-.users-table tbody tr:hover {
-  background-color: #f8f9fa;
+.user-row:hover {
+  background-color: #e7f3ff;
+  cursor: pointer;
 }
 
 .users-table tbody tr:last-child {
@@ -119,6 +139,35 @@
 .users-table td {
   padding: 15px;
   color: #333;
+}
+
+.user-info-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.user-name {
+  font-weight: 500;
+  color: #212529;
+}
+
+.username {
+  color: #6c757d;
+  font-size: 13px;
+}
+
+.role-cell {
+  text-align: center;
+}
+
+.date-cell {
+  text-align: center;
+  color: #495057;
+}
+
+.actions-cell {
+  text-align: center;
 }
 
 .role-badge {
@@ -137,23 +186,24 @@
 }
 
 .reset-button {
-  padding: 6px 12px;
+  padding: 8px 14px;
   margin-right: 8px;
   background-color: #ffc107;
-  color: #333;
+  color: white;
   border: none;
-  border-radius: 4px;
-  font-size: 13px;
-  font-weight: 500;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
+  transition: all 0.2s ease;
+  min-width: 65px;
+  height: 32px;
 }
 
 .reset-button:hover:not(:disabled) {
   background-color: #e0a800;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .reset-button:disabled {
@@ -163,21 +213,23 @@
 }
 
 .delete-button {
-  padding: 6px 12px;
+  padding: 8px 14px;
   background-color: #dc3545;
   color: white;
   border: none;
-  border-radius: 4px;
-  font-size: 13px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
+  transition: all 0.2s ease;
+  min-width: 65px;
+  height: 32px;
 }
 
 .delete-button:hover:not(:disabled) {
   background-color: #c82333;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .delete-button:disabled {
