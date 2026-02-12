@@ -17,10 +17,6 @@ export class AboutPageComponent {
     window.location.href = 'mailto:luca.terzariol@bluemobility.it?subject=Richiesta Supporto BMPresence';
   }
 
-  onCheckUpdatesClicked(): void {
-    alert('Stai utilizzando l\'ultima versione disponibile!');
-  }
-
   onTermsOfServiceTapped(): void {
     this.router.navigate(['/terms-of-service']);
   }

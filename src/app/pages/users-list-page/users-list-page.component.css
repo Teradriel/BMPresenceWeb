@@ -89,6 +89,7 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
+  table-layout: fixed;
 }
 
 .users-table thead {
@@ -145,6 +146,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  width: 35%;
 }
 
 .user-name {
@@ -159,15 +161,18 @@
 
 .role-cell {
   text-align: center;
+  width: 15%;
 }
 
 .date-cell {
   text-align: center;
   color: #495057;
+  width: 18%;
 }
 
 .actions-cell {
   text-align: center;
+  width: 14%;
 }
 
 .role-badge {
