@@ -93,19 +93,19 @@
 }
 
 .users-table thead {
-  background-color: #007bff;
+  background-color: #6E6E6E;
 }
 
 .users-table th {
   padding: 15px;
-  text-align: left;
   font-weight: 600;
   color: white;
   border-bottom: 2px solid #0056b3;
 }
 
 .user-info-header {
-  width: 35%;
+  width: 20%;
+  text-align: left;
 }
 
 .role-header {
@@ -146,7 +146,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  width: 35%;
+  width: 100%;
 }
 
 .user-name {
