@@ -107,7 +107,7 @@
   cursor: not-allowed;
 }
 
-.register-link {
+.register-link, .forgot-password {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -120,7 +120,7 @@
   color: var(--gray-600, #404040);
 }
 
-.register-link-text {
+.register-link-text, .forgot-password-text {
   font-family: 'Ubuntu', 'Segoe UI', sans-serif;
   font-weight: 700;
   font-size: 14px;
