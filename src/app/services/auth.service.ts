@@ -98,7 +98,7 @@ export class AuthService {
       console.log('🔍 Login response data:', data);
       console.log('🔍 user.mustChangePassword value:', data.user?.mustChangePassword);
       
-      // El backend puede devolver el flag en data.forceChangeOnNextLogin O en data.user.mustChangePassword
+      // Backend can return the flag in data.forceChangeOnNextLogin OR in data.user.mustChangePassword
       const mustChange = data.forceChangeOnNextLogin === true || data.user?.mustChangePassword === true;
       
       if (mustChange) {
