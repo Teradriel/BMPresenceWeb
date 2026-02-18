@@ -18,7 +18,7 @@ export class UsersListPageComponent implements OnInit {
   errorMessage = '';
   currentUserId: string = '';
   
-  // Estado para el diálogo de reset de password
+  // State for reset password dialog
   showResetDialog = false;
   selectedUser: UserListItem | null = null;
   newPassword = '';
@@ -105,7 +105,7 @@ export class UsersListPageComponent implements OnInit {
   }
 
   /**
-   * Abre el diálogo para resetear la contraseña de un usuario
+   * Opens the dialog to reset a user's password
    */
   openResetPasswordDialog(user: UserListItem): void {
     this.selectedUser = user;
@@ -115,7 +115,7 @@ export class UsersListPageComponent implements OnInit {
   }
 
   /**
-   * Cierra el diálogo de reset de contraseña
+   * Closes the reset password dialog
    */
   closeResetDialog(): void {
     this.showResetDialog = false;
@@ -125,12 +125,12 @@ export class UsersListPageComponent implements OnInit {
   }
 
   /**
-   * Ejecuta el reset de contraseña
+   * Executes the password reset
    */
   async executeResetPassword(): Promise<void> {
     if (!this.selectedUser) return;
 
-    // Validar nueva contraseña
+    // Validate new password
     if (!this.newPassword || this.newPassword.length < 6) {
       this.resetErrorMessage = 'La password deve essere di almeno 6 caratteri';
       return;
@@ -148,10 +148,10 @@ export class UsersListPageComponent implements OnInit {
         )
       );
 
-      // Cerrar diálogo
+      // Close dialog
       this.closeResetDialog();
 
-      // Mostrar mensaje de éxito (opcional)
+      // Show success message (optional)
       alert(`Password resettata per ${this.selectedUser.name} ${this.selectedUser.lastName}. L'utente dovrà cambiarla al prossimo accesso.`);
     } catch (error: any) {
       console.error('Error resetting password:', error);

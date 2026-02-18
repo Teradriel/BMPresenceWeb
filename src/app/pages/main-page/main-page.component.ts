@@ -235,23 +235,23 @@ export class MainPageComponent implements OnInit {
   }
 
   /**
-   * Traduce mensajes de error del backend al italiano
+   * Translates backend error messages to Italian
    */
   private translateErrorMessage(error: any): string {
-    // Log para debug
+    // Log for debug
     console.log('Error completo:', error);
     console.log('error.error:', error?.error);
     console.log('error.message:', error?.message);
     console.log('error.status:', error?.status);
     
-    // Intentar extraer el mensaje del error
+    // Try to extract the error message
     const errorMessage = error?.error?.message || error?.error?.error || error?.error || error?.message || '';
     
     console.log('errorMessage extraído:', errorMessage);
     
-    // Detectar el error de appointment duplicado
+    // Detect duplicate appointment error
     if (errorMessage.includes('ya tiene un appointment asignado')) {
-      // Extraer información del mensaje (nombre, recurso, fecha)
+      // Extract information from message (name, resource, date)
       const match = errorMessage.match(/La persona '(.+?)' ya tiene un appointment asignado para el recurso (\d+) el día ([\d-]+)/);
       
       if (match) {
@@ -266,11 +266,11 @@ export class MainPageComponent implements OnInit {
         return `${nombre} ha già un appuntamento assegnato per ${recursoNombre} il giorno ${fechaFormateada}.`;
       }
       
-      // Fallback si no se puede parsear el mensaje
+      // Fallback if message cannot be parsed
       return 'Questa persona ha già un appuntamento assegnato per questo giorno e risorsa.';
     }
     
-    // Otros errores genéricos
+    // Other generic errors
     if (errorMessage) {
       return `Errore: ${errorMessage}`;
     }

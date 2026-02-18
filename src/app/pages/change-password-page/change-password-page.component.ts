@@ -24,7 +24,7 @@ export class ChangePasswordPageComponent {
   isForced: boolean = false;
 
   constructor() {
-    // Verificar si es un cambio forzado
+    // Check if it's a forced change
     this.route.queryParams.subscribe(params => {
       this.isForced = params['forced'] === 'true' || this.authService.mustChangePassword();
     });
@@ -33,7 +33,7 @@ export class ChangePasswordPageComponent {
   async onChangePassword() {
     this.errorMessage = '';
 
-    // Validaciones
+    // Validations
     if (!this.currentPassword) {
       this.errorMessage = this.isForced 
         ? 'Inserisci la password temporale assegnata'
@@ -66,15 +66,15 @@ export class ChangePasswordPageComponent {
     try {
       await this.authService.changePassword(this.currentPassword, this.newPassword);
       
-      // Limpiar el flag de cambio forzado
+      // Clear the forced change flag
       this.authService.clearForceChangePassword();
       
-      // Cambio de password exitoso, redirigir
+      // Password change successful, redirect
       if (this.isForced) {
-        // Si era forzado, ir a la página principal
+        // If it was forced, go to main page
         this.router.navigate(['/main']);
       } else {
-        // Si era cambio normal, volver a perfil de usuario
+        // If it was normal change, go back to user profile
         this.router.navigate(['/user']);
       }
     } catch (error) {
@@ -86,7 +86,7 @@ export class ChangePasswordPageComponent {
 
   onCancel() {
     if (this.isForced) {
-      // Si es cambio forzado, no se puede cancelar, cerrar sesión
+      // If it's forced change, cannot cancel, logout
       this.authService.logout();
     } else {
       this.router.navigate(['/user']);
