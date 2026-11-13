@@ -1,91 +1,387 @@
-/* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
 
-/* Syncfusion Scheduler styles */
-@import '../node_modules/@syncfusion/ej2-base/styles/material.css';
-@import '../node_modules/@syncfusion/ej2-buttons/styles/material.css';
-@import '../node_modules/@syncfusion/ej2-calendars/styles/material.css';
-@import '../node_modules/@syncfusion/ej2-dropdowns/styles/material.css';
-@import '../node_modules/@syncfusion/ej2-inputs/styles/material.css';
-@import '../node_modules/@syncfusion/ej2-lists/styles/material.css';
-@import '../node_modules/@syncfusion/ej2-navigations/styles/material.css';
-@import '../node_modules/@syncfusion/ej2-popups/styles/material.css';
-@import '../node_modules/@syncfusion/ej2-splitbuttons/styles/material.css';
-@import '../node_modules/@syncfusion/ej2-angular-schedule/styles/material.css';
-
-/* BMPresence Color Palette */
-:root {
-  /* Primary Colors */
-  --primary: #00508C;
-  --primary-dark: #007AA8;
-  --primary-dark-text: #FFFFFF;
-  --secondary: #70AE45;
-  --secondary-dark-text: #FFFFFF;
-  --tertiary: #FFFFFF;
-
-  /* Status Colors */
-  --danger: #DC3545;
-
-  /* Base Colors */
-  --white: #FFFFFF;
-  --black: #000000;
-  --off-black: #222222;
-  --magenta: #D600AA;
-  --midnight-blue: #190649;
-
-  /* Blue Mobility Brand Colors */
-  --blue-mobility-blue-dark: #00508C;
-  --blue-mobility-blue-light: #007AA8;
-  --blue-mobility-green: #70AE45;
-
-  /* Gray Scale */
-  --gray-100: #E1E1E1;
-  --gray-200: #C8C8C8;
-  --gray-300: #ACACAC;
-  --gray-400: #919191;
-  --gray-500: #6E6E6E;
-  --gray-600: #404040;
-  --gray-900: #212121;
-  --gray-950: #141414;
-
-  /* Application Context Colors */
-  --primary-color: var(--primary);
-  --primary-color-dark: var(--primary-dark);
-  --header-background: var(--primary);
-  --background-color: var(--gray-100);
-  --card-background: var(--white);
-  --border-color: var(--gray-200);
-  --text-primary: var(--gray-950);
-  --text-secondary: var(--gray-500);
-  --tabs-background: var(--white);
-  --tab-hover-background: rgba(0, 80, 140, 0.04);
+/*
+ * Palette Blue Mobility: neutri leggermente azzurrini, accento blu #1F527C (verde #91E500 solo come segno).
+ * I colori sono variabili CSS (non "inline"): il tema scuro le ridefinisce più sotto.
+ */
+@theme inline {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 
-/* Dark Mode */
+@theme {
+  --color-canvas: #f2f5f8;
+  --color-surface: #ffffff;
+  --color-sunken: #e9eef3;
+  /* intestazioni di tabelle e righe di riepilogo, appena più scure della superficie */
+  --color-subtle: #f7f9fb;
+  --color-segment: #e3e9ef;
+  --color-sidebar: #fafbfc;
+  --color-line: #dce3ea;
+  --color-line-soft: #e8edf2;
+  --color-line-strong: #cbd5de;
+  --color-ink: #12202c;
+  --color-brand: #1f527c;
+  /* verde del marchio: solo come segno (voce attiva del menu), mai come sfondo di testo */
+  --color-lime: #91e500;
+  --color-ink-2: #34424f;
+  --color-muted: #5e6c79;
+  --color-faint: #97a3ae;
+  --color-placeholder: #6b7885;
+  /* interruttore spento e cerchi delle scelte non selezionate */
+  --color-control: #c3ccd5;
+
+  --color-accent: #1f527c;
+  --color-accent-ink: #173f5e;
+  --color-accent-soft: #e4eef6;
+  --color-accent-wash: #f0f6fa;
+  --color-accent-hover: #173f5e;
+
+  --color-ok: #3c8f12;
+
+  --color-ok-ink: #2f6e0c;
+  --color-ok-soft: #e8f5d3;
+  --color-warn-ink: #8a5200;
+  --color-warn-soft: #fdf1dc;
+  --color-err: #c0362c;
+  --color-err-ink: #a12a21;
+  --color-err-soft: #fdebea;
+  --color-orange: #ee7d1a;
+  --color-orange-ink: #8f4300;
+  --color-orange-soft: #fff0e3;
+}
+
+/* Colori dei grafici delle statistiche: in un :root normale (nel blocco @theme Tailwind scarta le variabili che nessuna classe usa e i grafici restano neri) */
+:root {
+  --chart-1: #1f6fb5;
+
+  --chart-2: #e07a1f;
+
+  --chart-3: #2a9d6f;
+
+  --chart-4: #8e5bd1;
+
+  --chart-5: #d6336c;
+
+  --chart-6: #c9a227;
+
+  --chart-7: #3aa7c9;
+
+  --chart-8: #7a8794;
+}
+
+/*
+ * Tema scuro: scelto dal menu (data-theme="dark"), oppure, se non si è scelto niente, quello del sistema.
+ * Le due serie di valori sono uguali: se ne cambi una, cambia anche l'altra.
+ */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-canvas: #0e1822;
+  --color-surface: #14212c;
+  --color-sunken: #1b2b38;
+  --color-subtle: #111d27;
+  --color-segment: #20313f;
+  --color-sidebar: #0b141c;
+  --color-line: #25384a;
+  --color-line-soft: #1e2e3c;
+  --color-line-strong: #33495d;
+  --color-ink: #e7eef4;
+  --color-brand: #9cc3e6;
+  --color-ink-2: #bfcbd6;
+  --color-muted: #93a4b3;
+  --color-faint: #62768a;
+  --color-placeholder: #8497a8;
+  --color-control: #3f5469;
+
+  --color-accent: #2c6a9e;
+  --color-accent-ink: #8dc1ea;
+  --color-accent-soft: #17314a;
+  --color-accent-wash: #12263a;
+  --color-accent-hover: #3a7db5;
+
+  --color-ok: #7fcb3c;
+
+  --chart-1: #5aa9ec;
+
+  --chart-2: #f0a050;
+
+  --chart-3: #4cc795;
+
+  --chart-4: #b48cf0;
+
+  --chart-5: #f06b9c;
+
+  --chart-6: #e3c457;
+
+  --chart-7: #6ccbe6;
+
+  --chart-8: #a4afba;
+  --color-ok-ink: #a5e04a;
+  --color-ok-soft: #1e3414;
+  --color-warn-ink: #f0b44c;
+  --color-warn-soft: #33280f;
+  --color-err: #ff6b60;
+  --color-err-ink: #ff8f86;
+  --color-err-soft: #3a1816;
+  --color-orange: #ff9a4d;
+  --color-orange-ink: #ffa05c;
+  --color-orange-soft: #38220f;
+}
+
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background-color: var(--off-black);
-    --card-background: var(--gray-900);
-    --border-color: var(--gray-600);
-    --text-primary: var(--gray-100);
-    --text-secondary: var(--gray-400);
-    --tabs-background: var(--gray-900);
-    --primary-color: var(--primary-dark);
-    --primary-color-dark: var(--blue-mobility-blue-light);
-    --header-background: var(--blue-mobility-blue-dark);
-    --tab-hover-background: rgba(0, 122, 168, 0.08);
+  :root:not([data-theme='light']):not([data-theme='dark']) {
+    color-scheme: dark;
+    --color-canvas: #0e1822;
+    --color-surface: #14212c;
+    --color-sunken: #1b2b38;
+    --color-subtle: #111d27;
+    --color-segment: #20313f;
+    --color-sidebar: #0b141c;
+    --color-line: #25384a;
+    --color-line-soft: #1e2e3c;
+    --color-line-strong: #33495d;
+    --color-ink: #e7eef4;
+  --color-brand: #9cc3e6;
+    --color-ink-2: #bfcbd6;
+    --color-muted: #93a4b3;
+    --color-faint: #62768a;
+    --color-placeholder: #8497a8;
+    --color-control: #3f5469;
+
+    --color-accent: #2c6a9e;
+    --color-accent-ink: #8dc1ea;
+    --color-accent-soft: #17314a;
+    --color-accent-wash: #12263a;
+    --color-accent-hover: #3a7db5;
+
+    --color-ok: #7fcb3c;
+
+    --chart-1: #5aa9ec;
+
+    --chart-2: #f0a050;
+
+    --chart-3: #4cc795;
+
+    --chart-4: #b48cf0;
+
+    --chart-5: #f06b9c;
+
+    --chart-6: #e3c457;
+
+    --chart-7: #6ccbe6;
+
+    --chart-8: #a4afba;
+    --color-ok-ink: #a5e04a;
+    --color-ok-soft: #1e3414;
+    --color-warn-ink: #f0b44c;
+    --color-warn-soft: #33280f;
+    --color-err: #ff6b60;
+    --color-err-ink: #ff8f86;
+    --color-err-soft: #3a1816;
+    --color-orange: #ff9a4d;
+    --color-orange-ink: #ffa05c;
+    --color-orange-soft: #38220f;
   }
 }
 
-/* Global Resets */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* il testo selezionato nel verde del marchio (testo scuro fisso: sul verde chiaro resta leggibile anche nel tema scuro) */
+::selection {
+  background: var(--color-lime);
+  color: #15171c;
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  color: var(--text-primary);
-  background-color: var(--background-color);
-  line-height: 1.6;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+}
+
+:where(button, a, input, select, textarea):focus-visible {
+  /* anello verde del marchio, da solo */
+  outline: 2px solid var(--color-lime);
+  outline-offset: 2px;
+}
+
+/* i menu a tendina fanno come i campi di ricerca: contorno verde anche al clic e finché il menu è aperto */
+button[role='combobox']:focus,
+button[role='combobox'][aria-expanded='true'],
+button[aria-haspopup='listbox']:focus,
+button[aria-haspopup='listbox'][aria-expanded='true'] {
+  outline: 2px solid var(--color-lime);
+  outline-offset: 2px;
+}
+
+/* i campi di ricerca dentro un menu o una riga (classe outline-none) non hanno un contorno proprio: l'anello globale, fuori da @layer, vincerebbe sulla classe
+   e verrebbe tagliato dal bordo del menu; il segno di focus lo dà il contenitore (focus-within) */
+input.outline-none:focus-visible {
+  outline: none;
+}
+
+input[type='checkbox'],
+input[type='radio'] {
+  /* caselle e scelte nel verde del marchio (la spunta si scurisce da sola per restare leggibile) */
+  accent-color: var(--color-lime);
+}
+
+/* indicatori di attesa che compaiono solo se l'attesa dura (vedi Sidebar): niente lampeggio quando è veloce */
+@keyframes pm-delayed-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.pm-delayed {
+  opacity: 0;
+  animation: pm-delayed-in 150ms ease-out 400ms forwards;
+}
+
+/* il puntatore a mano su tutto ciò che si clicca (Tailwind lascia la freccia sui pulsanti) */
+button:not(:disabled),
+[role='button']:not([aria-disabled='true']),
+[role='tab'],
+[role='radio']:not(:disabled),
+[role='switch']:not(:disabled),
+[role='menuitem'],
+summary,
+select:not(:disabled) {
+  cursor: pointer;
+}
+
+/* Animazioni di entrata: finestre, menu, pannelli, notifiche e barre. Solo con il movimento attivo nel sistema (prefers-reduced-motion). */
+@keyframes pm-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes pm-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes pm-slide-out-right {
+  from { opacity: 1; transform: none; }
+  to { opacity: 0.6; transform: translateX(32px); }
+}
+@keyframes pm-pop-in {
+  from { opacity: 0; transform: translateY(-4px) scale(0.97); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes pm-slide-in-right {
+  from { opacity: 0.6; transform: translateX(32px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes pm-slide-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes pm-grow-x {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes pm-flash {
+  0% { background-color: color-mix(in srgb, var(--color-lime) 38%, transparent); }
+  100% { background-color: transparent; }
+}
+@keyframes pm-bump {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+@keyframes pm-shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .pm-fade-in { animation: pm-fade-in 160ms ease-out backwards; }
+  .pm-fade-out { animation: pm-fade-out 160ms ease-in forwards; }
+  .pm-slide-out-right { animation: pm-slide-out-right 200ms cubic-bezier(0.4, 0, 1, 1) forwards; }
+  .pm-pop-in { animation: pm-pop-in 150ms cubic-bezier(0.2, 0.9, 0.3, 1) backwards; }
+  .pm-slide-in-right { animation: pm-slide-in-right 240ms cubic-bezier(0.2, 0.9, 0.3, 1) backwards; }
+  .pm-slide-up { animation: pm-slide-up 220ms cubic-bezier(0.2, 0.9, 0.3, 1) backwards; }
+  .pm-grow-x { transform-origin: left center; animation: pm-grow-x 600ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
+  .pm-flash { animation: pm-flash 1800ms ease-out backwards; }
+  .pm-bump { animation: pm-bump 360ms ease-out backwards; }
+  .pm-skeleton { background: linear-gradient(90deg, var(--color-sunken) 25%, var(--color-line-soft) 50%, var(--color-sunken) 75%); background-size: 200% 100%; animation: pm-shimmer 1.4s linear infinite; }
+}
+.pm-skeleton { background-color: var(--color-sunken); }
+
+/* Statistiche: i grafici si disegnano quando arrivano i dati (colonne e barre crescono, le linee si tracciano, gli spicchi si aprono, i numeri salgono).
+   Le chiavi --i scaglionano l'entrata dei singoli elementi. Solo con il movimento attivo nel sistema. */
+@keyframes pm-stat-grow-y {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+@keyframes pm-stat-grow-x {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes pm-stat-draw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes pm-stat-pop {
+  from { opacity: 0; transform: scale(0.35); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .pm-stat-col { transform-box: fill-box; transform-origin: 50% 100%; animation: pm-stat-grow-y 650ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards; animation-delay: calc(min(var(--i, 0), 30) * 28ms); }
+  .pm-stat-col-neg { transform-origin: 50% 0%; }
+  .pm-stat-row { transform-box: fill-box; transform-origin: 0% 50%; animation: pm-stat-grow-x 650ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards; animation-delay: calc(min(var(--i, 0), 30) * 28ms); }
+  .pm-stat-line { stroke-dasharray: 1; animation: pm-stat-draw 950ms cubic-bezier(0.3, 0.6, 0.3, 1) backwards; }
+  .pm-stat-area { animation: pm-fade-in 800ms ease-out 250ms backwards; }
+  .pm-stat-dot { transform-box: fill-box; transform-origin: center; animation: pm-stat-pop 380ms cubic-bezier(0.2, 0.9, 0.3, 1) backwards; animation-delay: calc(450ms + min(var(--i, 0), 40) * 22ms); }
+  .pm-stat-label { animation: pm-fade-in 420ms ease-out 520ms backwards; }
+  .pm-stat-slice { transform-box: view-box; animation: pm-stat-pop 560ms cubic-bezier(0.2, 0.9, 0.3, 1) backwards; animation-delay: calc(min(var(--i, 0), 20) * 70ms); }
+  .pm-stat-tr { animation: pm-fade-in 320ms ease-out backwards; animation-delay: calc(min(var(--i, 0), 14) * 28ms); }
+  .pm-stat-legend { animation: pm-fade-in 400ms ease-out 250ms backwards; }
+}
+
+/* passaggio tra pagine (View Transitions, vedi PageTransition): esce con una dissolvenza, il nuovo contenuto entra salendo di poco */
+@keyframes pm-vt-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes pm-vt-rise {
+  from { transform: translateY(8px); }
+  to { transform: none; }
+}
+::view-transition {
+  /* durante il passaggio i clic arrivano comunque alla pagina */
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(.page-out) { animation: 110ms ease-in both pm-vt-fade reverse; }
+  ::view-transition-new(.page-in) { animation: 200ms ease-out 90ms both pm-vt-fade, 260ms cubic-bezier(0.2, 0.9, 0.3, 1) 90ms both pm-vt-rise; }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+}
+
+/* riga scelta con le frecce nell'elenco sotto un campo di ricerca (Invio la sceglie) */
+[data-kb-row][data-active='true'] {
+  background-color: var(--color-sunken);
+  box-shadow: inset 2px 0 0 var(--color-lime);
+}
+
+/* lo scheletro (phantom-ui) ritaglia il contenuto con overflow:hidden: a caricamento finito lo si toglie, altrimenti l'anello verde del focus si taglia ai lati */
+phantom-ui:not([loading]) {
+  overflow: visible;
+}
+
+/* Font in locale (@fontsource-variable) */
+:root {
+  --font-geist-sans: 'Geist Variable';
+  --font-geist-mono: 'Geist Mono Variable';
+  --font-brand: 'Montserrat', sans-serif;
+}
+
+/* Alias per le pagine non ancora ristilate (Privacy, Termini): seguono i token e il tema scuro */
+:root {
+  --background-color: var(--color-canvas);
+  --card-background: var(--color-surface);
+  --border-color: var(--color-line);
+  --text-primary: var(--color-ink);
+  --text-secondary: var(--color-muted);
+  --primary-color: var(--color-accent);
+  --primary-color-dark: var(--color-accent-hover);
 }

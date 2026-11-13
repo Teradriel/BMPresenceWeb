@@ -1,83 +1,24 @@
-<div class="register-container">
-  <div class="scroll-content">
-    <!-- Header Section -->
-    <div class="header-section">
-      <h1 class="page-title">Crea Account</h1>
-      <p class="page-subtitle">Completa i campi per registrarti</p>
+<div class="flex min-h-screen items-center justify-center px-4 py-8">
+  <form class="w-full rounded-[14px] border border-line bg-surface p-7 flex max-w-[560px] flex-col gap-5" (ngSubmit)="onRegister()" novalidate>
+    <a class="inline-flex w-fit items-center gap-1.5 text-[13px] text-muted hover:text-ink" href="/login" (click)="$event.preventDefault(); onCancel()">← Accesso</a>
+    <div>
+      <h1 class="text-[28px] font-semibold leading-tight tracking-tight">Crea l'account</h1>
+      <p class="mt-1.5 text-sm text-muted">Un amministratore attiverà il tuo profilo prima del primo accesso.</p>
     </div>
-
-    <!-- Form Section -->
-    <div class="form-section">
-      <div class="form-container">
-        <input
-          type="text"
-          class="input-field"
-          placeholder="Nome"
-          [(ngModel)]="name"
-          [disabled]="isLoading"
-          (keyup.enter)="onRegister()"
-        />
-
-        <input
-          type="text"
-          class="input-field"
-          placeholder="Cognome"
-          [(ngModel)]="lastName"
-          [disabled]="isLoading"
-          (keyup.enter)="onRegister()"
-        />
-
-        <input
-          type="text"
-          class="input-field"
-          placeholder="Nome utente"
-          [(ngModel)]="username"
-          [disabled]="isLoading"
-          (keyup.enter)="onRegister()"
-        />
-
-        <input
-          type="password"
-          class="input-field"
-          placeholder="Password (min 6 caratteri)"
-          [(ngModel)]="password"
-          [disabled]="isLoading"
-          (keyup.enter)="onRegister()"
-        />
-
-        <input
-          type="password"
-          class="input-field"
-          placeholder="Conferma password"
-          [(ngModel)]="confirmPassword"
-          [disabled]="isLoading"
-          (keyup.enter)="onRegister()"
-        />
-
-        <p class="error-message" *ngIf="errorMessage">
-          {{ errorMessage }}
-        </p>
-
-        <button
-          class="register-button"
-          (click)="onRegister()"
-          [disabled]="isLoading"
-        >
-          {{ isLoading ? "Registrazione..." : "Registrati" }}
-        </button>
-
-        <button
-          class="cancel-button"
-          (click)="onCancel()"
-          [disabled]="isLoading"
-        >
-          Annulla
-        </button>
-
-        <div class="loading-indicator" *ngIf="isLoading">
-          <div class="spinner"></div>
-        </div>
-      </div>
+    @if (errorMessage) {
+      <div class="rounded-[10px] bg-err-soft px-3.5 py-3 text-[13px] text-err-ink" role="alert">{{ errorMessage }}</div>
+    }
+    <div class="grid gap-5 sm:grid-cols-2">
+      <label class="flex flex-col gap-2 text-[13px] font-medium text-ink-2">Nome <input class="h-10 w-full rounded-[9px] border border-line-strong bg-surface px-3 text-sm placeholder:text-placeholder" name="name" placeholder="Es. Giulia" autocomplete="given-name" [(ngModel)]="name" /></label>
+      <label class="flex flex-col gap-2 text-[13px] font-medium text-ink-2">Cognome <input class="h-10 w-full rounded-[9px] border border-line-strong bg-surface px-3 text-sm placeholder:text-placeholder" name="lastName" placeholder="Es. Zanatta" autocomplete="family-name" [(ngModel)]="lastName" /></label>
+      <label class="flex flex-col gap-2 text-[13px] font-medium text-ink-2">Nome utente <input class="h-10 w-full rounded-[9px] border border-line-strong bg-surface px-3 font-mono text-sm placeholder:text-placeholder" name="username" placeholder="giulia.zanatta" autocomplete="username" [(ngModel)]="username" /></label>
+      <label class="flex flex-col gap-2 text-[13px] font-medium text-ink-2">Email aziendale <input class="h-10 w-full rounded-[9px] border border-line-strong bg-surface px-3 text-sm placeholder:text-placeholder" type="email" name="email" placeholder="nome@bluemobility.it" autocomplete="email" [(ngModel)]="email" /></label>
+      <label class="flex flex-col gap-2 text-[13px] font-medium text-ink-2">Password <input class="h-10 w-full rounded-[9px] border border-line-strong bg-surface px-3 text-sm placeholder:text-placeholder" type="password" name="password" placeholder="Almeno 6 caratteri" autocomplete="new-password" [(ngModel)]="password" /></label>
+      <label class="flex flex-col gap-2 text-[13px] font-medium text-ink-2">Ripeti la password <input class="h-10 w-full rounded-[9px] border border-line-strong bg-surface px-3 text-sm" type="password" name="confirm" autocomplete="new-password" [(ngModel)]="confirmPassword" /></label>
     </div>
-  </div>
+    <div class="flex justify-end gap-2.5">
+      <button type="button" class="inline-flex h-10 items-center justify-center rounded-[9px] border border-line-strong bg-surface px-3.5 text-sm font-medium text-ink hover:bg-sunken" (click)="onCancel()" [disabled]="isLoading">Annulla</button>
+      <button type="submit" class="inline-flex h-10 items-center justify-center rounded-[9px] bg-accent px-4 text-sm font-medium text-white shadow-sm hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-60" [disabled]="isLoading">{{ isLoading ? 'Creazione…' : 'Crea account' }}</button>
+    </div>
+  </form>
 </div>

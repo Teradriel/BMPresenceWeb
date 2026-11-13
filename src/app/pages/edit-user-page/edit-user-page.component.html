@@ -1,83 +1,27 @@
-<div class="edit-user-container">
-  <div class="edit-user-card">
-    <!-- Header -->
-    <div class="header">
-      <h1 class="title">Modifica Profilo</h1>
-      <p class="subtitle">Aggiorna le tue informazioni personali</p>
+<div class="mx-auto flex w-full max-w-[520px] flex-col gap-4 px-3 py-4 md:py-8">
+  <form class="w-full rounded-[14px] border border-line bg-surface p-7 flex flex-col gap-5" [formGroup]="editForm" (ngSubmit)="saveChanges()" novalidate>
+    <div>
+      <h2 class="text-2xl font-semibold tracking-tight">Modifica profilo</h2>
+      <p class="mt-1.5 text-sm text-muted">Nome, cognome e nome utente.</p>
     </div>
-
-    <!-- Form -->
-    <form [formGroup]="editForm" (ngSubmit)="saveChanges()" class="form">
-      <div class="form-content">
-        <!-- Name field -->
-        <div class="form-group">
-          <input
-            type="text"
-            formControlName="name"
-            placeholder="Nome"
-            class="form-input"
-            [class.error]="hasError('name')"
-          />
-          <span class="error-message" *ngIf="hasError('name')">
-            {{ getErrorMessage("name") }}
-          </span>
-        </div>
-
-        <!-- Last name field -->
-        <div class="form-group">
-          <input
-            type="text"
-            formControlName="lastName"
-            placeholder="Cognome"
-            class="form-input"
-            [class.error]="hasError('lastName')"
-          />
-          <span class="error-message" *ngIf="hasError('lastName')">
-            {{ getErrorMessage("lastName") }}
-          </span>
-        </div>
-
-        <!-- Username field -->
-        <div class="form-group">
-          <input
-            type="text"
-            formControlName="username"
-            placeholder="Nome utente"
-            class="form-input"
-            [class.error]="hasError('username')"
-          />
-          <span class="error-message" *ngIf="hasError('username')">
-            {{ getErrorMessage("username") }}
-          </span>
-        </div>
-
-        <!-- General error message -->
-        <div class="error-message-general" *ngIf="errorMessage">
-          {{ errorMessage }}
-        </div>
-
-        <!-- Buttons -->
-        <div class="button-group">
-          <button type="submit" class="btn btn-primary" [disabled]="isLoading">
-            <span *ngIf="!isLoading">Salva Modifiche</span>
-            <span *ngIf="isLoading">Salvando...</span>
-          </button>
-
-          <button
-            type="button"
-            class="btn btn-secondary"
-            [disabled]="isLoading"
-            (click)="cancel()"
-          >
-            Annulla
-          </button>
-        </div>
-      </div>
-    </form>
-
-    <!-- Loading Indicator -->
-    <div class="loading-overlay" *ngIf="isLoading">
-      <div class="spinner"></div>
+    @if (errorMessage) {
+      <div class="rounded-[10px] bg-err-soft px-3.5 py-3 text-[13px] text-err-ink" role="alert">{{ errorMessage }}</div>
+    }
+    <label class="flex flex-col gap-2 text-[13px] font-medium text-ink-2">Nome
+      <input class="h-10 w-full rounded-[9px] border border-line-strong bg-surface px-3 text-sm aria-[invalid=true]:border-err" formControlName="name" [attr.aria-invalid]="hasError('name')" />
+      @if (hasError('name')) { <span class="text-xs font-medium text-err-ink">Inserisci il nome (almeno 2 caratteri).</span> }
+    </label>
+    <label class="flex flex-col gap-2 text-[13px] font-medium text-ink-2">Cognome
+      <input class="h-10 w-full rounded-[9px] border border-line-strong bg-surface px-3 text-sm aria-[invalid=true]:border-err" formControlName="lastName" [attr.aria-invalid]="hasError('lastName')" />
+      @if (hasError('lastName')) { <span class="text-xs font-medium text-err-ink">Inserisci il cognome (almeno 2 caratteri).</span> }
+    </label>
+    <label class="flex flex-col gap-2 text-[13px] font-medium text-ink-2">Nome utente
+      <input class="h-10 w-full rounded-[9px] border border-line-strong bg-surface px-3 font-mono text-sm aria-[invalid=true]:border-err" formControlName="username" [attr.aria-invalid]="hasError('username')" />
+      @if (hasError('username')) { <span class="text-xs font-medium text-err-ink">Inserisci il nome utente (almeno 3 caratteri).</span> }
+    </label>
+    <div class="flex justify-end gap-2.5">
+      <button type="button" class="inline-flex h-10 items-center justify-center rounded-[9px] border border-line-strong bg-surface px-3.5 text-sm font-medium text-ink hover:bg-sunken" (click)="cancel()" [disabled]="isLoading">Annulla</button>
+      <button type="submit" class="inline-flex h-10 items-center justify-center rounded-[9px] bg-accent px-4 text-sm font-medium text-white shadow-sm hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-60" [disabled]="isLoading || editForm.invalid || editForm.pristine">{{ isLoading ? 'Salvataggio…' : 'Salva' }}</button>
     </div>
-  </div>
+  </form>
 </div>

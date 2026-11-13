@@ -1,162 +1,88 @@
-<div class="users-list-container">
-  <div class="page-header">
-    <h1>Gestione Utenti</h1>
-    <button
-      class="refresh-button"
-      (click)="loadUsers()"
-      [disabled]="isBusy"
-      title="Aggiorna lista utenti"
-    >
-      <span class="refresh-icon">🔄</span>
-      Aggiorna
-    </button>
+<div class="flex flex-col gap-4 px-3 py-4 md:px-5 md:py-5">
+  <!-- Barra: ricerca, schede di stato, aggiorna, nuovo utente -->
+  <div class="sticky top-16 z-20 -mx-3 -mt-4 flex flex-col gap-3 bg-canvas px-3 py-3 md:-mx-5 md:-mt-5 md:px-5">
+    <div class="flex flex-wrap items-center gap-2.5">
+      <div class="relative min-w-[220px] flex-1">
+        <bm-icon name="search" [size]="16" class="pointer-events-none absolute left-3 top-3 text-muted" />
+        <input type="search" [class]="input + ' pl-9'" placeholder="Cerca per nome, utente o email" aria-label="Cerca un utente" [ngModel]="query()" (ngModelChange)="setQuery($event)" name="q" />
+      </div>
+      <button type="button" [class]="secondary" title="Rileggi dal server" [disabled]="loading()" (click)="load()">
+        <bm-icon [name]="loading() ? 'loader' : 'refresh'" [size]="16" [class.animate-spin]="loading()" /><span class="hidden sm:inline">Aggiorna</span>
+      </button>
+      <button type="button" [class]="primary" (click)="panel.set({ user: null })"><bm-icon name="user-plus" [size]="16" /><span class="hidden sm:inline">Nuovo utente</span></button>
+    </div>
+    <bm-sliding-group label="Stato" boxClass="self-start max-w-full overflow-x-auto [scrollbar-width:none]">
+      @for (t of tabs(); track t.value) {
+        <button type="button" class="relative z-[1] inline-flex h-8 items-center gap-2 whitespace-nowrap rounded-lg px-3 text-[13px] font-medium" [attr.data-active]="tab() === t.value" [class]="tab() === t.value ? 'text-ink' : 'text-ink-2'" (click)="setTab(t.value)">
+          {{ t.label }} <span class="inline-grid h-5 min-w-5 place-items-center rounded-full bg-line px-1.5 text-[11px] font-semibold text-ink-2">{{ t.n }}</span>
+        </button>
+      }
+    </bm-sliding-group>
   </div>
 
-  <!-- Error message -->
-  @if (errorMessage) {
-    <div class="error-message">
-      {{ errorMessage }}
-    </div>
-  }
-
-  <!-- Loading indicator -->
-  @if (isBusy) {
-    <div class="loading-overlay">
-      <div class="spinner"></div>
-      <p>Caricamento in corso...</p>
-    </div>
-  }
-
-  <!-- Users table -->
-  @if (!isBusy && users.length > 0) {
-    <div class="table-container">
-      <table class="users-table">
-        <thead>
-          <tr>
-            <th class="user-info-header">Nome Cognome (Username)</th>
-            <th class="role-header">Ruolo</th>
-            <th class="date-header">Data Creazione</th>
-            <th class="date-header">Ultima Attività</th>
-            <th class="actions-header">Azioni</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (user of users; track user.id) {
-            <tr class="user-row">
-              <td class="user-info-cell">
-                <span class="user-name"
-                  >{{ user.name }} {{ user.lastName }}</span
-                >
-                <span class="username">({{ user.username }})</span>
-              </td>
-              <td class="role-cell">
-                <span class="role-badge" [class.admin]="user.isAdmin">
-                  {{ getUserRole(user.isAdmin) }}
-                </span>
-              </td>
-              <td class="date-cell">{{ formatDateShort(user.createdAt) }}</td>
-              <td class="date-cell">{{ formatDate(user.lastActiveAt) }}</td>
-              <td class="actions-cell">
-                <button
-                  class="reset-button"
-                  (click)="openResetPasswordDialog(user)"
-                  [disabled]="isBusy"
-                  title="Resetta password"
-                >
-                  Resetta password
-                </button>
-                <button
-                  class="delete-button"
-                  (click)="deleteUser(user)"
-                  [disabled]="isBusy"
-                  title="Elimina utente"
-                >
-                  Elimina utente
-                </button>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  }
-
-  <!-- Empty state -->
-  @if (!isBusy && users.length === 0 && !errorMessage) {
-    <div class="empty-state">
-      <p>Nessun utente trovato.</p>
-    </div>
-  }
-
-  <!-- Reset Password Dialog -->
-  @if (showResetDialog && selectedUser) {
-    <div class="modal-overlay" (click)="closeResetDialog()">
-      <div class="modal-dialog" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h2>Resetta Password</h2>
-          <button
-            class="close-button"
-            (click)="closeResetDialog()"
-            [disabled]="isBusy"
-          >
-            ×
+  <section class="overflow-hidden rounded-[14px] border border-line bg-surface">
+    <!-- Testata con intestazioni ordinabili (solo larghi) -->
+    <div class="hidden grid-cols-[minmax(0,2.6fr)_minmax(0,1.5fr)_minmax(0,2fr)_minmax(0,1.1fr)_minmax(0,1.5fr)_44px] items-center gap-4 border-b border-line-soft bg-subtle px-5 py-2.5 text-xs font-medium text-muted md:grid">
+      @for (c of cols; track c.key) {
+        <span [attr.aria-sort]="ariaSort(c.key)">
+          <button type="button" class="-mx-1 inline-flex items-center gap-1 rounded px-1 py-0.5 hover:bg-sunken hover:text-ink" [class.text-ink]="sortCol() === c.key" (click)="sort(c.key)">
+            {{ c.label }}
+            <bm-icon [name]="sortCol() !== c.key ? 'chevrons-up-down' : asc() ? 'arrow-up' : 'arrow-down'" [size]="14" [class.opacity-40]="sortCol() !== c.key" />
           </button>
-        </div>
+        </span>
+      }
+      <span></span>
+    </div>
 
-        <div class="modal-body">
-          <p class="user-info">
-            Resetta la password per:
-            <strong>{{ selectedUser.name }} {{ selectedUser.lastName }}</strong>
-          </p>
-
-          <div class="form-group">
-            <label for="newPassword">Nuova Password Temporale:</label>
-            <input
-              id="newPassword"
-              type="password"
-              class="input-field"
-              placeholder="Nuova password (min 6 caratteri)"
-              [(ngModel)]="newPassword"
-              [disabled]="isBusy"
-              (keyup.enter)="executeResetPassword()"
-              autofocus
-            />
-          </div>
-
-          <div class="warning-message">
-            ⚠️ L'utente dovrà cambiare questa password al prossimo accesso.
-          </div>
-
-          @if (resetErrorMessage) {
-            <div class="error-message">
-              {{ resetErrorMessage }}
-            </div>
-          }
-        </div>
-
-        <div class="modal-footer">
-          <button
-            class="confirm-button"
-            (click)="executeResetPassword()"
-            [disabled]="isBusy || !newPassword"
-          >
-            {{ isBusy ? "Resettando..." : "Resetta Password" }}
-          </button>
-          <button
-            class="cancel-button"
-            (click)="closeResetDialog()"
-            [disabled]="isBusy"
-          >
-            Annulla
-          </button>
-        </div>
-
-        @if (isBusy) {
-          <div class="loading-indicator">
-            <div class="spinner"></div>
-          </div>
-        }
+    @for (u of rows(); track u.id) {
+      <div
+        class="relative grid grid-cols-[minmax(0,1fr)_44px] items-center gap-4 border-b border-line-soft px-5 py-2.5 last:border-b-0 hover:bg-subtle hover:before:absolute hover:before:inset-y-0 hover:before:left-0 hover:before:w-[2px] hover:before:bg-lime md:grid-cols-[minmax(0,2.6fr)_minmax(0,1.5fr)_minmax(0,2fr)_minmax(0,1.1fr)_minmax(0,1.5fr)_44px]"
+        (contextmenu)="menu.openAtPoint($event)"
+        (dblclick)="panel.set({ user: u })"
+      >
+        <span class="flex min-w-0 flex-col">
+          <b class="truncate text-sm font-semibold">{{ fullName(u) }}</b>
+          <span class="truncate text-xs text-muted"><span class="font-mono">@{{ u.username }}</span> · {{ u.email }}</span>
+          <span class="mt-1 flex gap-1.5 md:hidden">
+            <bm-badge [tone]="roleTone(u)">{{ u.isAdmin ? 'Amministratore' : 'Utente' }}</bm-badge>
+            <bm-badge [tone]="statusTone(u)">{{ statusText(u) }}</bm-badge>
+          </span>
+        </span>
+        <span class="hidden md:block"><bm-badge [tone]="roleTone(u)">{{ u.isAdmin ? 'Amministratore' : 'Utente' }}</bm-badge></span>
+        <span class="hidden md:block"><bm-badge [tone]="statusTone(u)">{{ statusText(u) }}</bm-badge></span>
+        <span class="hidden text-[13px] tabular-nums md:block">{{ date(u.createdAt) }}</span>
+        <span class="hidden text-[13px] tabular-nums md:block">{{ dateTime(u.lastActiveAt) }}</span>
+        <bm-row-menu #menu [items]="menuItems(u)" [label]="'Azioni su ' + fullName(u)" />
       </div>
-    </div>
-  }
+    } @empty {
+      <div class="flex flex-col items-center gap-1.5 px-5 py-12 text-center">
+        <bm-icon name="users" [size]="30" class="text-accent-ink" />
+        <b class="text-[15px] font-medium">Nessun utente</b>
+        <span class="max-w-[420px] text-[13px] text-muted">Nessun risultato per i filtri scelti.</span>
+        <button type="button" [class]="secondary + ' mt-3 !h-9'" (click)="query.set(''); setTab('all')">Azzera</button>
+      </div>
+    }
+  </section>
+
+  <div class="flex items-center justify-between gap-4 text-[13px] text-muted">
+    <span>{{ range() }}</span>
+    <bm-pager [page]="page()" [pages]="pages()" (go)="page.set($event)" />
+  </div>
+  <p class="text-xs text-muted">Doppio clic su una riga per modificare · ⋯ o tasto destro per il menu.</p>
 </div>
+
+@if (panel(); as p) {
+  <app-user-panel [user]="p.user" [isSelf]="!!p.user && '' + p.user.id === meId()" (closed)="panel.set(null)" (saved)="afterSave()" />
+}
+
+@if (resetFor(); as u) {
+  <bm-form-panel title="Reset password" icon="lock" [width]="460" [dirty]="newPassword().length > 0" [busy]="resetBusy()" [error]="resetError()" [canSave]="newPassword().length >= 6" saveLabel="Reimposta" (save)="doReset()" (closed)="resetFor.set(null)">
+    <div class="flex flex-col gap-4">
+      <p class="text-sm text-ink-2">Imposta una password temporanea per <b>{{ fullName(u) }}</b>. Dovrà cambiarla al prossimo accesso.</p>
+      <label class="flex flex-col gap-2 text-[13px] font-medium text-ink-2">
+        Password temporanea
+        <input type="password" [class]="input" placeholder="Almeno 6 caratteri" autocomplete="new-password" [ngModel]="newPassword()" (ngModelChange)="newPassword.set($event)" name="np" />
+      </label>
+    </div>
+  </bm-form-panel>
+}

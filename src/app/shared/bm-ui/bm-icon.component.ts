@@ -1,0 +1,122 @@
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core'
+import {
+  ArrowDown,
+  Clock,
+  ExternalLink,
+  FileText,
+  Link,
+  Lock,
+  LogOut,
+  Monitor,
+  Moon,
+  Repeat,
+  RefreshCw,
+  ShieldCheck,
+  Sun,
+  UserCheck,
+  UserPlus,
+  Users,
+  User,
+  Calendar,
+  ArrowUp,
+  ArrowUpRight,
+  Check,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  ChevronsLeft,
+  ChevronsRight,
+  ChevronsUpDown,
+  CircleCheck,
+  Columns3,
+  Download,
+  Ellipsis,
+  Inbox,
+  Info,
+  ListFilter,
+  LoaderCircle,
+  LucideAngularModule,
+  type LucideIconData,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Pencil,
+  Pin,
+  PinOff,
+  Plus,
+  Search,
+  Trash2,
+  TriangleAlert,
+  X,
+} from 'lucide-angular'
+
+/**
+ * Icone lucide (le stesse di onSales, `lucide-react`) con un nome corto: `<bm-icon name="chevron-down" [size]="16" />`.
+ * Nel menu laterale `[size]="18" [stroke]="1.8"`, nei controlli `[size]="16"`. Sono sempre decorative (`aria-hidden`): il significato lo dà il testo
+ * accanto o l'`aria-label` del pulsante. Per aggiungerne una: importarla da `lucide-angular` e aggiungere una riga in `ICONS`.
+ */
+const ICONS: Record<string, LucideIconData> = {
+  'arrow-down': ArrowDown,
+  'clock': Clock,
+  'external-link': ExternalLink,
+  file: FileText,
+  link: Link,
+  lock: Lock,
+  'log-out': LogOut,
+  monitor: Monitor,
+  moon: Moon,
+  repeat: Repeat,
+  refresh: RefreshCw,
+  shield: ShieldCheck,
+  sun: Sun,
+  'user-check': UserCheck,
+  'user-plus': UserPlus,
+  users: Users,
+  user: User,
+  calendar: Calendar,
+  'arrow-up': ArrowUp,
+  'arrow-up-right': ArrowUpRight,
+  check: Check,
+  'check-circle': CircleCheck,
+  'chevron-down': ChevronDown,
+  'chevron-left': ChevronLeft,
+  'chevron-right': ChevronRight,
+  'chevron-up': ChevronUp,
+  'chevrons-left': ChevronsLeft,
+  'chevrons-right': ChevronsRight,
+  'chevrons-up-down': ChevronsUpDown,
+  columns: Columns3,
+  download: Download,
+  inbox: Inbox,
+  info: Info,
+  filter: ListFilter,
+  loader: LoaderCircle,
+  more: Ellipsis,
+  pencil: Pencil,
+  pin: Pin,
+  'pin-off': PinOff,
+  'panel-left-close': PanelLeftClose,
+  'panel-left-open': PanelLeftOpen,
+  plus: Plus,
+  search: Search,
+  trash: Trash2,
+  alert: TriangleAlert,
+  x: X,
+}
+
+@Component({
+  selector: 'bm-icon',
+  imports: [LucideAngularModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: 'inline-flex shrink-0', 'aria-hidden': 'true' },
+  template: `<lucide-icon [img]="icon()" [size]="size()" [strokeWidth]="stroke()" />`,
+})
+export class BmIcon {
+  /** nome corto di un'icona registrata qui sotto; in alternativa `data` con un'icona di lucide (per il menu e le voci di un progetto) */
+  readonly name = input('')
+  readonly data = input<LucideIconData | undefined>(undefined)
+  readonly size = input(16)
+  /** 1.8 nel menu laterale, 2 altrove */
+  readonly stroke = input(2)
+  protected readonly icon = computed(() => this.data() ?? ICONS[this.name()] ?? Info)
+}

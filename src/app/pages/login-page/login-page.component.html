@@ -1,62 +1,30 @@
-<div class="login-container">
-  <!-- Header Section -->
-  <div class="header-section">
-    <h1 class="app-title">BMPresence</h1>
-    <p class="app-subtitle">
-      Sistema di gestione della vostra presenza alle 8:30
-    </p>
-  </div>
-
-  <!-- Form Section -->
-  <div class="form-section">
-    <div class="form-container">
-      <input
-        type="text"
-        class="input-field"
-        placeholder="Utente"
-        [(ngModel)]="username"
-        [disabled]="isBusy"
-        (keyup.enter)="onLogin()"
-      />
-
-      <input
-        type="password"
-        class="input-field"
-        placeholder="Password"
-        [(ngModel)]="password"
-        [disabled]="isBusy"
-        (keyup.enter)="onLogin()"
-      />
-
-      <p class="error-message" *ngIf="errorMessage">
-        {{ errorMessage }}
-      </p>
-
-      <button class="login-button" (click)="onLogin()" [disabled]="isBusy">
-        {{ isBusy ? "Accesso in corso..." : "Accedi" }}
-      </button>
-
-      <div class="register-link">
-        <span class="register-text">Non hai un account?</span>
-        <a class="register-link-text" (click)="onRegister()">Registrati</a>
+<div class="flex min-h-screen items-center justify-center px-4 py-8">
+  <form class="w-full rounded-[14px] border border-line bg-surface p-7 flex max-w-[420px] flex-col gap-6" (ngSubmit)="onLogin()" novalidate>
+    <div class="flex items-center gap-2.5 font-brand text-[22px] font-medium text-brand">
+        <img src="assets/BMlogo.png" alt="" class="size-[30px]" />
+        <span>BM<b class="font-bold">Presence</b></span>
       </div>
-
-      <div class="forgot-password">
-        <span class="forgot-password-text"
-          >Ti sei dimenticato la password? Chiama un amministratore per
-          resettarla.</span
-        >
-      </div>
+    <div>
+      <h1 class="text-[28px] font-semibold leading-tight tracking-tight">Accedi</h1>
+      <p class="mt-1.5 text-sm text-muted">Chi è presente alle 8:30, giorno per giorno.</p>
     </div>
-  </div>
-
-  <!-- Footer Section -->
-  <div class="footer-section">
-    <p class="version-text">BMPresence v1.1.4</p>
-  </div>
-
-  <!-- Loading Spinner -->
-  <div class="loading-overlay" *ngIf="isBusy">
-    <div class="spinner"></div>
-  </div>
+    @if (errorMessage) {
+      <div class="rounded-[10px] bg-err-soft px-3.5 py-3 text-[13px] text-err-ink" role="alert">{{ errorMessage }}</div>
+    }
+    <label class="flex flex-col gap-2 text-[13px] font-medium text-ink-2">Utente
+      <input class="h-10 w-full rounded-[9px] border border-line-strong bg-surface px-3 text-sm placeholder:text-placeholder" name="username" autocomplete="username" placeholder="nome.cognome" [(ngModel)]="username" />
+    </label>
+    <label class="flex flex-col gap-2 text-[13px] font-medium text-ink-2">Password
+      <input class="h-10 w-full rounded-[9px] border border-line-strong bg-surface px-3 text-sm placeholder:text-placeholder" type="password" name="password" autocomplete="current-password" placeholder="La tua password" [(ngModel)]="password" />
+      <span class="text-xs font-normal text-muted">Password dimenticata? Chiedi a un amministratore di reimpostarla.</span>
+    </label>
+    <button type="submit" class="inline-flex h-10 w-full items-center justify-center gap-2 rounded-[9px] bg-accent px-4 text-sm font-medium text-white shadow-sm hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-60" [disabled]="isBusy">
+      {{ isBusy ? 'Accesso in corso…' : 'Accedi' }}
+    </button>
+    <p class="text-center text-[13px] text-muted">Non hai un account? <a class="font-medium text-accent-ink hover:underline" href="/register" (click)="$event.preventDefault(); onRegister()">Registrati</a></p>
+    <div class="flex flex-wrap justify-center gap-x-3.5 gap-y-1.5 text-xs text-muted">
+      <a class="hover:underline" href="/privacy-policy">Privacy</a>
+      <a class="hover:underline" href="/terms-of-service">Termini di servizio</a>
+    </div>
+  </form>
 </div>

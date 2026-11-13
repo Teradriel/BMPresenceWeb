@@ -1,34 +1,63 @@
-<div class="app-container">
-  <!-- Header with App Title -->
-  @if (showNavigation) {
-    <header class="app-header">
-      <div class="header-content">
-        <img
-          src="assets/BMlogo.png"
-          alt="BMPresence Logo"
-          class="app-logo-small"
-        />
-        <h1 class="app-title">BMPresence</h1>
-      </div>
-    </header>
-  }
+<bm-toast-outlet />
 
-  <!-- Navigation Tabs -->
-  @if (showNavigation) {
-    <nav class="tabs-container">
-      <div class="tabs">
-        @for (tab of tabs; track tab.path) {
-          <a [routerLink]="tab.path" routerLinkActive="active" class="tab">
-            <span class="tab-icon">{{ tab.icon }}</span>
-            <span class="tab-label">{{ tab.label }}</span>
-          </a>
+@if (showShell()) {
+  <div class="flex min-h-screen">
+    <!-- Menu laterale: da 768px in su; sotto, barra in basso -->
+    <div class="hidden md:block">
+      <bm-sidebar [entries]="entries()" [activeHref]="url()" [interceptClicks]="true" (selected)="router.navigateByUrl($event.href)">
+        <span bmLogo class="flex items-center gap-2 font-brand text-lg font-medium text-brand">
+          <img src="assets/BMlogo.png" alt="" class="size-6" />
+          <span>BM<b class="font-bold">Presence</b></span>
+        </span>
+        <img bmLogoMark src="assets/BMlogo.png" alt="BMPresence" class="size-6" />
+      </bm-sidebar>
+    </div>
+
+    <div class="flex min-w-0 flex-1 flex-col pb-16 md:pb-0">
+      <!-- Barra in alto: titolo e sottotitolo, connessione, tema, utente -->
+      <header class="sticky top-0 z-30 flex h-16 items-center gap-1 border-b border-line bg-surface px-3 md:px-5">
+        <div class="mr-3 flex min-w-0 flex-1 flex-col justify-center leading-tight">
+          <h1 class="truncate text-lg font-semibold tracking-tight">{{ title()[0] }}</h1>
+          <p class="hidden truncate text-xs text-muted sm:block">{{ title()[1] }}</p>
+        </div>
+        <bm-badge [tone]="connection.online() ? 'ok' : 'warn'">
+          <span class="size-1.5 rounded-full bg-current"></span>{{ connection.online() ? 'Online' : 'Offline' }}
+        </bm-badge>
+        <button type="button" class="ml-1 flex size-10 items-center justify-center rounded-lg text-ink-2 hover:bg-sunken" aria-haspopup="menu" aria-label="Cambia tema" title="Tema" (click)="openTheme($event)">
+          <bm-icon [name]="theme.mode() === 'dark' ? 'moon' : theme.mode() === 'light' ? 'sun' : 'monitor'" [size]="18" />
+        </button>
+        <button type="button" class="ml-1 flex h-11 items-center gap-2.5 rounded-full border border-line bg-surface py-1 pl-1 pr-3 text-left" aria-haspopup="menu" (click)="openUser($event)">
+          <span class="grid size-9 place-items-center rounded-full bg-accent-soft text-[13px] font-semibold text-accent-ink">{{ initials() }}</span>
+          <span class="hidden flex-col text-[13px] font-medium leading-tight md:flex">
+            {{ fullName() }}
+            <small class="text-xs font-normal text-muted">{{ isAdmin() ? 'Amministratore' : 'Utente' }}</small>
+          </span>
+          <bm-icon name="chevron-down" [size]="16" class="hidden text-muted md:block" />
+        </button>
+        <bm-row-menu #themeMenu [items]="themeItems()" label="Tema" class="hidden" />
+        <bm-row-menu #userMenu [items]="userItems()" label="Utente" class="hidden" />
+      </header>
+
+      <main class="flex-1">
+        <router-outlet />
+      </main>
+    </div>
+  </div>
+
+  <!-- Barra in basso: telefono e finestre strette -->
+  <nav class="fixed inset-x-0 bottom-0 z-40 flex h-16 border-t border-line bg-surface md:hidden" aria-label="Menu principale">
+    @for (t of tabs(); track t.key) {
+      <a [routerLink]="t.href" [class.text-accent-ink]="isActive(t.href)" class="relative flex flex-1 flex-col items-center justify-center gap-1 text-[11px] font-medium text-muted">
+        <span class="grid h-[30px] w-14 place-items-center rounded-full" [class.bg-accent-soft]="isActive(t.href)">
+          <bm-icon [name]="t.key === 'presenze' ? 'calendar' : t.key === 'profilo' ? 'user' : t.key === 'utenti' ? 'users' : 'info'" [size]="22" />
+        </span>
+        {{ t.label }}
+        @if (isActive(t.href)) {
+          <span class="absolute inset-x-[30%] top-0 h-[3px] rounded-b-full bg-lime"></span>
         }
-      </div>
-    </nav>
-  }
-
-  <!-- Page Content -->
-  <main class="page-content" [class.full-page]="!showNavigation">
-    <router-outlet />
-  </main>
-</div>
+      </a>
+    }
+  </nav>
+} @else {
+  <router-outlet />
+}

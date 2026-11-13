@@ -1,77 +1,25 @@
-<div class="about-page">
-  <div class="content-wrapper">
-    <div class="sections-container">
-      <!-- App Logo/Icon Section -->
-      <div class="section logo-section">
-        <div class="section-content">
-          <img
-            src="/assets/bmpresence2_logo.png"
-            alt="BMPresence Logo"
-            class="app-logo"
-          />
-          <h1 class="app-title">BMPresence</h1>
-          <p class="app-subtitle">Sistema di Gestione Presenze</p>
-        </div>
-      </div>
-
-      <!-- App Information Section -->
-      <div class="section info-section">
-        <div class="section-content">
-          <h2 class="section-title">Informazioni App</h2>
-
-          <div class="info-grid">
-            <div class="info-row">
-              <span class="info-label">Versione:</span>
-              <span class="info-value">1.1.4</span>
-            </div>
-
-            <div class="info-row">
-              <span class="info-label">Framework:</span>
-              <span class="info-value">Angular 21</span>
-            </div>
-
-            <div class="info-row full-width">
-              <p class="developer-note">
-                Sviluppato con ❤️ e 127 caffè da un team di scimmie che ha
-                imparato a programmare invece di lanciare banane (anche se a
-                volte lanciamo eccezioni)
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Support Section -->
-      <div class="section support-section">
-        <div class="section-content">
-          <h2 class="section-title">Supporto e Contatti</h2>
-
-          <div class="button-group">
-            <button class="btn btn-primary" (click)="onSupportClicked()">
-              📧 Contatta il Supporto
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Legal Information -->
-      <div class="legal-section">
-        <div class="legal-links">
-          <a class="legal-link" (click)="onTermsOfServiceTapped()"
-            >📜 Termini di Servizio</a
-          >
-          <span class="separator">|</span>
-          <a class="legal-link" (click)="onPrivacyPolicyTapped()"
-            >🔒 Privacy Policy</a
-          >
-        </div>
-        <p class="copyright">Tutti i sinistri riservati</p>
+<div class="mx-auto flex w-full max-w-[880px] flex-col gap-4 px-3 py-4 md:px-5 md:py-5">
+  <section class="flex flex-col gap-3.5 rounded-[14px] border border-line bg-surface p-5">
+    <div class="flex items-center gap-3.5">
+      <img src="assets/BMlogo.png" alt="" class="size-12" />
+      <div>
+        <h2 class="font-brand text-[22px] font-medium leading-tight text-brand">BM<b class="font-bold">Presence</b></h2>
+        <p class="text-[13px] text-muted">Versione <span class="font-mono">{{ version }}</span></p>
       </div>
     </div>
+    <p class="text-sm leading-relaxed text-ink-2">Organizza chi è presente alle 8:30: su Mobile e OnLog possono esserci più persone, ma la stessa persona non può stare due volte sulla stessa risorsa nello stesso giorno. Funziona su Windows, macOS, Android e nel browser, con gli stessi dati.</p>
+    <dl class="grid gap-3 sm:grid-cols-2">
+      <div><dt class="text-xs text-muted">Dispositivo</dt><dd class="text-sm">{{ device }}</dd></div>
+      <div><dt class="text-xs text-muted">Lingua</dt><dd class="text-sm">Italiano</dd></div>
+    </dl>
+  </section>
 
-    <!-- Loading Indicator -->
-    <div class="loading-overlay" *ngIf="isBusy">
-      <div class="spinner"></div>
-    </div>
-  </div>
+  <section class="flex flex-col gap-1.5 rounded-[14px] border border-line bg-surface p-5">
+    <h3 class="text-[15px] font-semibold">Documenti</h3>
+    <p class="text-[13px] text-muted">Come trattiamo i tuoi dati e le regole d'uso.</p>
+    <button type="button" class="mt-2 flex h-10 items-center justify-between rounded-lg px-2.5 text-sm hover:bg-sunken" (click)="onPrivacyPolicyTapped()">Informativa privacy <span aria-hidden="true">›</span></button>
+    <button type="button" class="flex h-10 items-center justify-between rounded-lg px-2.5 text-sm hover:bg-sunken" (click)="onTermsOfServiceTapped()">Termini di servizio <span aria-hidden="true">›</span></button>
+    <a class="flex h-10 items-center justify-between rounded-lg px-2.5 text-sm hover:bg-sunken" href="https://github.com/Teradriel/BMPresence/issues" target="_blank" rel="noopener">Segnala un problema su GitHub <span aria-hidden="true">›</span></a>
+    <button type="button" class="flex h-10 items-center justify-between rounded-lg px-2.5 text-sm hover:bg-sunken" (click)="onSupportClicked()">Contatta il supporto <span aria-hidden="true">›</span></button>
+  </section>
 </div>

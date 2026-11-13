@@ -8,8 +8,7 @@ import { AuthService } from '../../services/auth.service';
   selector: 'app-change-password-page',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './change-password-page.component.html',
-  styleUrl: './change-password-page.component.css'
+  templateUrl: './change-password-page.component.html'
 })
 export class ChangePasswordPageComponent {
   private router = inject(Router);
