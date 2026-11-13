@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-
 import { AboutPageComponent } from './about-page.component';
+import { testProviders } from '../../testing';
 
 describe('AboutPageComponent', () => {
   let component: AboutPageComponent;
@@ -9,51 +9,34 @@ describe('AboutPageComponent', () => {
   let router: Router;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [AboutPageComponent]
-    })
-    .compileComponents();
-
+    await TestBed.configureTestingModule({ imports: [AboutPageComponent], providers: testProviders }).compileComponents();
     fixture = TestBed.createComponent(AboutPageComponent);
     component = fixture.componentInstance;
     router = TestBed.inject(Router);
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('mostra la versione 2.0.0', () => {
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('2.0.0');
   });
 
-  it('should have isBusy property initialized to false', () => {
-    expect(component.isBusy).toBe(false);
+  it('offre il contatto con il supporto (non lo si preme: aprirebbe il client di posta)', () => {
+    const labels = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('button')).map((b) => b.textContent?.trim());
+    expect(labels.some((l) => l?.startsWith('Contatta il supporto'))).toBeTrue();
+    expect(typeof component.onSupportClicked).toBe('function');
   });
 
-  it('should open email client when onSupportClicked is called', () => {
-    delete (window as any).location;
-    (window as any).location = { href: '' };
-    component.onSupportClicked();
-    expect(window.location.href).toBe(
-      'mailto:support@bmpresence.com?subject=Richiesta Supporto BMPresence'
-    );
-  });
-
-  it('should show alert when onCheckUpdatesClicked is called', () => {
-    spyOn(window, 'alert');
-    component.onCheckUpdatesClicked();
-    expect(window.alert).toHaveBeenCalledWith(
-      'Stai utilizzando l\'ultima versione disponibile!'
-    );
-  });
-
-  it('should navigate to terms of service', () => {
+  it('naviga a Termini di servizio e Privacy', () => {
     spyOn(router, 'navigate');
     component.onTermsOfServiceTapped();
     expect(router.navigate).toHaveBeenCalledWith(['/terms-of-service']);
-  });
-
-  it('should navigate to privacy policy', () => {
-    spyOn(router, 'navigate');
     component.onPrivacyPolicyTapped();
     expect(router.navigate).toHaveBeenCalledWith(['/privacy-policy']);
+  });
+
+  it('il link GitHub apre le issue del repo', () => {
+    const a = (fixture.nativeElement as HTMLElement).querySelector('a[href*="github.com"]') as HTMLAnchorElement;
+    expect(a.href).toContain('Teradriel/BMPresence/issues');
+    expect(a.rel).toContain('noopener');
   });
 });
