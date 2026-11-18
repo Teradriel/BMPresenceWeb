@@ -30,6 +30,17 @@ describe('AuthService', () => {
     http.verify();
   });
 
+  it('all’avvio con token: checking resta true finché il server non risponde, poi ready si risolve', async () => {
+    seedSession(fakeJwt(5 * DAY));
+    const auth = create();
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(auth.checking()).toBeTrue();
+    http.expectOne((r) => r.url.endsWith('/auth/restore-session')).flush({ success: true, user: ME });
+    await auth.ready;
+    expect(auth.checking()).toBeFalse();
+  });
+
   it('token lontano dalla scadenza: ripristina la sessione senza rinnovare', async () => {
     seedSession(fakeJwt(5 * DAY));
     const auth = create();

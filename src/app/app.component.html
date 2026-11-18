@@ -1,5 +1,13 @@
 <bm-toast-outlet />
 
+<!-- Avvio con sessione salvata: si controlla il token prima di scegliere tra login e presenze -->
+@if (auth.checking()) {
+  <div class="fixed inset-0 z-50 flex flex-col items-center justify-center gap-3 bg-canvas text-muted" role="status" aria-live="polite">
+    <bm-icon name="loader" [size]="28" class="animate-spin text-accent-ink" />
+    <span class="text-sm">Controllo l'accesso…</span>
+  </div>
+}
+
 @if (showShell()) {
   <div class="flex min-h-screen">
     <!-- Menu laterale: da 768px in su; sotto, barra in basso -->

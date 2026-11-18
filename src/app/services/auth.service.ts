@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, firstValueFrom } from 'rxjs';
 import { HttpClient, HttpContext } from '@angular/common/http';
@@ -48,13 +48,18 @@ export class AuthService {
   private router = inject(Router);
   private renewPromise: Promise<boolean> | null = null;
 
+  /** true finché si controlla il token salvato (avvio): la UI mostra l'attesa e le guardie aspettano. */
+  readonly checking = signal(false);
+  /** Si risolve quando il controllo all'avvio è finito (con o senza sessione valida). */
+  readonly ready: Promise<void>;
+
   constructor() {
     const storedUser = this.getStoredUser();
     this.currentUserSubject = new BehaviorSubject<User | null>(storedUser);
     this.currentUser = this.currentUserSubject.asObservable();
     
     // Sessione già aperta: si riusa (rinnovo se serve, poi ripristino), senza chiedere il login
-    void this.startup();
+    this.ready = this.startup();
 
     // Al ritorno nella scheda si controlla la scadenza del token
     document.addEventListener('visibilitychange', () => {
@@ -64,8 +69,13 @@ export class AuthService {
 
   private async startup(): Promise<void> {
     if (!this.getToken()) return;
-    if (!(await this.ensureFreshToken())) return;
-    await this.restoreSession();
+    this.checking.set(true);
+    try {
+      if (!(await this.ensureFreshToken())) return;
+      await this.restoreSession();
+    } finally {
+      this.checking.set(false);
+    }
   }
 
   public get currentUserValue(): User | null {

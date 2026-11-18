@@ -32,7 +32,7 @@ const TITLES: Record<string, [string, string]> = {
 })
 export class AppComponent {
   protected readonly router = inject(Router);
-  private readonly auth = inject(AuthService);
+  protected readonly auth = inject(AuthService);
   protected readonly theme = inject(ThemeService);
   protected readonly connection = inject(ConnectionService);
   protected readonly themeMenu = viewChild.required<BmRowMenu>('themeMenu');

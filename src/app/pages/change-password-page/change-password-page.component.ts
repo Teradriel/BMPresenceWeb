@@ -14,6 +14,10 @@ export class ChangePasswordPageComponent {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private authService = inject(AuthService);
+
+  protected get username(): string {
+    return this.authService.currentUserValue?.username ?? '';
+  }
   
   currentPassword: string = '';
   newPassword: string = '';
