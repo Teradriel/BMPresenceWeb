@@ -11,7 +11,5 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     // Configure HttpClient with the authentication interceptor
     provideHttpClient(withInterceptors([authInterceptor])),
-    // TokenRenewalService is no longer initialized automatically here
-    // It is managed manually from AuthService
   ]
 };

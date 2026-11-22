@@ -30,8 +30,7 @@ function mapDtoToUser(dto: UserDTO): User {
   selector: 'app-edit-user-page',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './edit-user-page.component.html',
-  styleUrls: ['./edit-user-page.component.css']
+  templateUrl: './edit-user-page.component.html'
 })
 export class EditUserPageComponent implements OnInit {
   private fb = inject(FormBuilder);

@@ -1,82 +1,140 @@
-<div class="main-page-container">
-  <div class="grid-container">
-    <!-- Header with refresh button and connection status -->
-    <div class="header-toolbar">
-      <div class="toolbar-left">
-        <button
-          class="refresh-button"
-          (click)="refreshCalendar()"
-          title="Aggiorna calendario"
-        >
-          Aggiorna
-        </button>
-        <span class="connection-label">Db online</span>
-        <span class="connection-status">{{ isConnectedStr }}</span>
-      </div>
-      <div class="toolbar-right">
-        <span class="user-name">{{ currentUserName }}</span>
-        <button class="logout-button" (click)="logout()" title="Logout">
-          Logout
-        </button>
-      </div>
-    </div>
-
-    <!-- Scheduler area -->
-    <div class="scheduler-container">
-      <ejs-schedule
-        #scheduleObj
-        width="100%"
-        height="100%"
-        [selectedDate]="selectedDate"
-        [currentView]="currentView"
-        [eventSettings]="eventSettings"
-        [group]="group"
-        [showWeekNumber]="true"
-        [showHeaderBar]="true"
-        [showTimeIndicator]="false"
-        (cellClick)="onCellClick($event)"
-        (eventClick)="onEventClick($event)"
-        (popupOpen)="onPopupOpen($event)"
+<!-- Casella risorsa × giorno -->
+<ng-template #cellTpl let-cell>
+  <div
+    class="flex flex-col gap-1.5 rounded-[10px] border bg-surface p-2 transition-opacity"
+    [class]="cell.people.length === 0 && cell.warn ? 'border-2 border-orange' : 'border-line'"
+    [class.opacity-40]="cell.dim"
+  >
+    @for (p of cell.people; track p.occ.appointmentId + '|' + p.occ.date + '|' + p.occ.userId) {
+      <div
+        class="relative flex items-center gap-2 rounded-lg p-1.5"
+        [class]="p.mine ? 'bg-accent-soft' : 'bg-subtle'"
+        (contextmenu)="menu.openAtPoint($event)"
       >
-        <e-resources>
-          <e-resource
-            field="ResourceIds"
-            title="Resources"
-            name="Resources"
-            [dataSource]="resourceDataSource"
-            textField="Name"
-            idField="Id"
-            colorField="Background"
-          >
-          </e-resource>
-        </e-resources>
-        <e-views>
-          <e-view
-            option="TimelineWorkWeek"
-            [startHour]="'08:30'"
-            [endHour]="'09:30'"
-            [timeScale]="{ enable: true, interval: 60, slotCount: 1 }"
-          ></e-view>
-        </e-views>
-      </ejs-schedule>
-    </div>
-
-    <!-- Loading indicator -->
-    <div class="loading-overlay" *ngIf="isBusy">
-      <div class="spinner"></div>
-    </div>
-
-    <!-- Custom assignment popup -->
-    <app-appointment-popup
-      [isVisible]="showAppointmentPopup"
-      [appointmentData]="appointmentPopupData"
-      [currentUser]="currentUser"
-      [users]="users"
-      [isEditMode]="isEditMode"
-      (assignToMe)="onAssignToMe()"
-      (assignToUser)="onAssignToUser($event)"
-      (deleteAppointment)="onDeleteAppointment()"
-      (cancel)="closePopup()"
-    ></app-appointment-popup>
+        <button type="button" class="flex min-w-0 flex-1 items-center gap-2 text-left" (click)="openPanel(cell.date, cell.resource.id, p.occ)" [attr.aria-label]="cell.resource.name + ', ' + p.name">
+          <span class="grid size-[30px] shrink-0 place-items-center rounded-full bg-sunken text-[11px] font-bold" [class.bg-surface]="p.mine">{{ p.initials }}</span>
+          <span class="flex min-w-0 flex-col leading-tight">
+            <b class="truncate text-[13px] font-semibold">{{ p.name }}</b>
+            <span class="flex items-center gap-1 truncate text-[11px] text-muted">
+              @if (p.occ.recurring) {
+                <bm-icon name="repeat" [size]="11" />
+              }
+              {{ p.sub }}
+            </span>
+          </span>
+        </button>
+        <bm-row-menu #menu [items]="menuItems(p)" [label]="'Azioni su ' + p.name" />
+      </div>
+    }
+    @if (cell.people.length === 0) {
+      <button type="button" class="flex flex-col items-center gap-0.5 rounded-lg py-3 text-[13px] font-semibold text-muted hover:bg-sunken" (click)="openPanel(cell.date, cell.resource.id)">
+        {{ cell.warn ? 'Scoperto' : 'Libero' }}
+        <span class="flex items-center gap-1 text-xs font-medium text-accent-ink"><bm-icon name="plus" [size]="12" />Aggiungi</span>
+      </button>
+    } @else {
+      <button type="button" class="flex h-8 items-center justify-center gap-1 rounded-lg text-xs font-medium text-accent-ink hover:bg-sunken" (click)="openPanel(cell.date, cell.resource.id)">
+        <bm-icon name="plus" [size]="12" />Aggiungi
+      </button>
+    }
   </div>
+</ng-template>
+
+<div class="flex flex-col gap-4 px-3 py-4 md:px-5 md:py-5">
+  <!-- Riquadri -->
+  <div class="grid gap-3 sm:grid-cols-3">
+    <section class="flex flex-col gap-1.5 rounded-[14px] border border-line bg-surface px-[18px] py-4">
+      <span class="text-[13px] text-muted">Scoperte oggi</span>
+      <span class="text-[26px] font-semibold leading-tight tracking-tight tabular-nums">{{ kpi().uncovered }}</span>
+      <span class="text-xs text-muted">{{ kpi().uncoveredSub }}</span>
+    </section>
+    <section class="flex flex-col gap-1.5 rounded-[14px] border border-line bg-surface px-[18px] py-4">
+      <span class="text-[13px] text-muted">Persone presenti oggi</span>
+      <span class="text-[26px] font-semibold leading-tight tracking-tight tabular-nums">{{ kpi().present }}</span>
+    </section>
+    <section class="flex flex-col gap-1.5 rounded-[14px] border border-line bg-surface px-[18px] py-4">
+      <span class="text-[13px] text-muted">Il tuo prossimo turno</span>
+      <span class="pt-1 text-lg font-semibold leading-tight">{{ kpi().next }}</span>
+      <span class="text-xs text-muted">{{ kpi().nextSub }}</span>
+    </section>
+  </div>
+
+  <!-- Barra: settimana, filtro, aggiorna, aggiungi -->
+  <div class="sticky top-16 z-20 -mx-3 flex flex-wrap items-center gap-x-4 gap-y-2 bg-canvas px-3 py-3 md:-mx-5 md:px-5">
+    <div class="flex items-center gap-1.5">
+      <button type="button" class="flex size-10 items-center justify-center rounded-lg text-ink-2 hover:bg-sunken" aria-label="Settimana precedente" (click)="shift(-1)"><bm-icon name="chevron-left" [size]="18" /></button>
+      <button type="button" [class]="secondary + ' !h-9'" (click)="goToday()">Oggi</button>
+      <button type="button" class="flex size-10 items-center justify-center rounded-lg text-ink-2 hover:bg-sunken" aria-label="Settimana successiva" (click)="shift(1)"><bm-icon name="chevron-right" [size]="18" /></button>
+    </div>
+    <div class="flex flex-col leading-tight">
+      <b class="text-[15px]">{{ weekLabel() }}</b>
+      <span class="text-xs text-muted">{{ weekSub() }}</span>
+    </div>
+    <span class="flex-1"></span>
+    <bm-sliding-group label="Mostra" class="hidden md:block">
+      @for (f of filters; track f.value) {
+        <button type="button" class="relative z-[1] h-8 rounded-lg px-3 text-[13px] font-medium" [attr.data-active]="filter() === f.value" [class]="filter() === f.value ? 'text-ink' : 'text-ink-2'" (click)="filter.set(f.value)">{{ f.label }}</button>
+      }
+    </bm-sliding-group>
+    <div class="flex gap-2">
+      <button type="button" [class]="secondary" title="Rileggi dal server" [disabled]="loading()" (click)="load()">
+        <bm-icon [name]="loading() ? 'loader' : 'refresh'" [size]="16" [class.animate-spin]="loading()" /><span class="hidden sm:inline">Aggiorna</span>
+      </button>
+      <button type="button" [class]="primary" (click)="addFromToolbar()"><bm-icon name="plus" [size]="16" /><span class="hidden sm:inline">Aggiungi presenza</span></button>
+    </div>
+  </div>
+
+  @if (!narrow()) {
+    <!-- Desktop: griglia risorse × giorni -->
+    <section class="flex flex-col gap-2">
+      <div class="grid grid-cols-[140px_repeat(5,minmax(0,1fr))] gap-2">
+        <span></span>
+        @for (d of days(); track d) {
+          <span class="text-[13px] font-semibold" [class.text-accent-ink]="iso(d) === todayIso">
+            {{ dow3[$index] }} {{ d.getDate().toString().padStart(2, '0') }}/{{ (d.getMonth() + 1).toString().padStart(2, '0') }}
+          </span>
+        }
+      </div>
+      @for (row of rows(); track row.resource.id) {
+        <div class="grid grid-cols-[140px_repeat(5,minmax(0,1fr))] items-start gap-2">
+          <span class="pt-2 text-[15px] font-semibold">{{ row.resource.name }}</span>
+          @for (cell of row.cells; track cell.date) {
+            <ng-container [ngTemplateOutlet]="cellTpl" [ngTemplateOutletContext]="{ $implicit: cell }" />
+          }
+        </div>
+      }
+    </section>
+  } @else {
+    <!-- Telefono: un giorno alla volta -->
+    <section class="flex flex-col gap-3">
+      <bm-sliding-group label="Giorno" boxClass="w-full">
+        @for (l of dow3; track l; let i = $index) {
+          <button type="button" class="relative z-[1] h-8 flex-1 rounded-lg text-[13px] font-medium" [attr.data-active]="selDay() === i" [class]="selDay() === i ? 'text-ink' : 'text-ink-2'" (click)="selDay.set(i)">{{ l }}</button>
+        }
+      </bm-sliding-group>
+      @for (r of dayRows(); track r.resource.id) {
+        <div class="flex flex-col gap-1.5">
+          <b class="text-[15px]">{{ r.resource.name }}</b>
+          <ng-container [ngTemplateOutlet]="cellTpl" [ngTemplateOutletContext]="{ $implicit: r.cell }" />
+        </div>
+      }
+    </section>
+  }
+
+  <p class="text-xs text-muted">Clic su una persona per cambiarla · ⋯ o tasto destro per il menu · le serie si ripetono ogni settimana fino alla data scelta.</p>
 </div>
+
+@if (panel(); as p) {
+  <app-assign-panel
+    [day]="p.day"
+    [resourceId]="p.resourceId"
+    [existing]="p.existing"
+    [resources]="resources()"
+    [colleagues]="colleagues()"
+    [occurrences]="occurrences()"
+    [me]="me()"
+    (closed)="panel.set(null)"
+    (saved)="afterSave()"
+    (removeDay)="removeFromPanel(p.existing!)"
+    (endSeries)="endSeries(p.existing!)"
+  />
+}

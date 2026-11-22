@@ -8,8 +8,7 @@ import { AuthService } from '../../services/auth.service';
   selector: 'app-login-page',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './login-page.component.html',
-  styleUrl: './login-page.component.css'
+  templateUrl: './login-page.component.html'
 })
 export class LoginPageComponent {
   private router = inject(Router);
@@ -25,6 +24,9 @@ export class LoginPageComponent {
   constructor() {
     // Get return URL if exists
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/main';
+    if (this.route.snapshot.queryParams['expired']) {
+      this.errorMessage = 'Sessione scaduta: accedi di nuovo.';
+    }
   }
 
   async onLogin() {

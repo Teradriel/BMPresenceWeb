@@ -1,4 +1,8 @@
-import { HttpInterceptorFn, HttpRequest } from '@angular/common/http';
+import { HttpErrorResponse, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
+import { Injector, inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { catchError, from, switchMap, throwError } from 'rxjs';
+import { AuthService } from '../services/auth.service';
 
 /**
  * HTTP Interceptor to add authentication token to requests.
@@ -26,14 +30,27 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     return next(req);
   }
 
-  // Clone the request and add authorization header
-  const clonedReq = req.clone({
-    setHeaders: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+  const injector = inject(Injector);
+  const withToken = (t: string) => req.clone({ setHeaders: { Authorization: `Bearer ${t}` } });
 
-  return next(clonedReq);
+  return next(withToken(token)).pipe(
+    catchError((error) => {
+      if (!(error instanceof HttpErrorResponse) || error.status !== 401) {
+        return throwError(() => error);
+      }
+      // 401 a metà sessione: un solo tentativo di rinnovo, poi si ripete la richiesta; se fallisce, login
+      const auth = injector.get(AuthService);
+      return from(auth.renewToken()).pipe(
+        switchMap((ok) => {
+          const fresh = localStorage.getItem('bmpresence_token');
+          if (ok && fresh && fresh !== token) return next(withToken(fresh));
+          auth.clearSession();
+          void injector.get(Router).navigate(['/login'], { queryParams: { expired: '1' } });
+          return throwError(() => error);
+        })
+      );
+    })
+  );
 };
 
 /**
@@ -44,10 +61,9 @@ function isAuthRequest(req: HttpRequest<any>): boolean {
   const authEndpoints = [
     '/auth/login',
     '/auth/register',
-    '/auth/logout',
     '/auth/restore-session',
     '/auth/renew-token',
-    '/auth/change-password'
+    '/auth/validate-token'
   ];
 
   return authEndpoints.some(endpoint => req.url.includes(endpoint));

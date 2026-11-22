@@ -37,6 +37,9 @@ yarn-error.log
 /libpeerconnection.log
 testem.log
 /typings
+.claude
+.copilot
+.github
 
 # System files
 .DS_Store

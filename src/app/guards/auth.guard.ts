@@ -2,9 +2,10 @@ import { inject } from '@angular/core';
 import { Router, CanActivateFn, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
-export const authGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
+export const authGuard: CanActivateFn = async (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
   const authService = inject(AuthService);
   const router = inject(Router);
+  await authService.ready;
 
   if (authService.isAuthenticated) {
     return true;
@@ -15,9 +16,10 @@ export const authGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: R
   return false;
 };
 
-export const adminGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
+export const adminGuard: CanActivateFn = async (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
   const authService = inject(AuthService);
   const router = inject(Router);
+  await authService.ready;
 
   if (!authService.isAuthenticated) {
     // Redirect to login if not authenticated
@@ -35,9 +37,10 @@ export const adminGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: 
   return false;
 };
 
-export const loginGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
+export const loginGuard: CanActivateFn = async (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
   const authService = inject(AuthService);
   const router = inject(Router);
+  await authService.ready;
 
   if (!authService.isAuthenticated) {
     return true;

@@ -1,408 +1,264 @@
-import { Component, OnInit, ViewChild, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { AuthService, User } from '../../services/auth.service';
-import { CalendarService, Resource, Appointment } from '../../services/calendar.service';
-import { UserService, UserDisplay } from '../../services/user.service';
-import { AppointmentPopupComponent, AppointmentData } from '../../components/appointment-popup/appointment-popup.component';
-import { 
-  ScheduleModule, 
-  TimelineViewsService,
-  DayService,
-  WeekService,
-  WorkWeekService,
-  MonthService,
-  AgendaService,
-  ScheduleComponent,
-  EventSettingsModel,
-  View,
-  ResourceDetails,
-  PopupOpenEventArgs
-} from '@syncfusion/ej2-angular-schedule';
+import { NgTemplateOutlet } from '@angular/common';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { AuthService } from '../../services/auth.service';
+import { CalendarService, Colleague, Occurrence, Resource } from '../../services/calendar.service';
+import { ConnectionService } from '../../services/connection.service';
+import { BmConfirm, BmIcon, BmMenuItem, BmRowMenu, BmSlidingGroup, BmToast, buttonClass } from '../../shared/bm-ui';
+import { DOW, DOW3, MON, addDays, describe, ddmm, fromIso, iso, isoWeek, monday, weekday } from '../../shared/week';
+import { AssignPanelComponent } from './assign-panel.component';
 
+interface Chip {
+  occ: Occurrence;
+  name: string;
+  initials: string;
+  mine: boolean;
+  sub: string;
+}
+
+interface Cell {
+  date: Date;
+  resource: Resource;
+  people: Chip[];
+  warn: boolean;
+  dim: boolean;
+}
+
+interface PanelState {
+  day: Date;
+  resourceId: number;
+  existing: Occurrence | null;
+}
+
+/** Presenze della settimana: griglia risorse × giorni (sotto 768px un giorno alla volta), come nel mockup e nell'app MAUI. */
 @Component({
   selector: 'app-main-page',
-  standalone: true,
-  imports: [CommonModule, ScheduleModule, AppointmentPopupComponent],
-  providers: [
-    TimelineViewsService,
-    DayService,
-    WeekService,
-    WorkWeekService,
-    MonthService,
-    AgendaService
-  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [NgTemplateOutlet, BmIcon, BmRowMenu, BmSlidingGroup, AssignPanelComponent],
   templateUrl: './main-page.component.html',
-  styleUrls: ['./main-page.component.css']
 })
 export class MainPageComponent implements OnInit {
-  @ViewChild('scheduleObj') scheduleObj!: ScheduleComponent;
+  private readonly calendar = inject(CalendarService);
+  private readonly auth = inject(AuthService);
+  private readonly confirm = inject(BmConfirm);
+  private readonly toast = inject(BmToast);
+  private readonly connection = inject(ConnectionService);
 
-  title = 'Presenze 8:30';
-  isConnectedStr = 'Connesso';
-  isBusy = false;
-  selectedDate: Date = new Date();
-  currentUserName: string = '';
-  currentUser?: User;
-  
-  // Scheduler data
-  presence: Appointment[] = [];
-  
-  // Event configuration
-  eventSettings: EventSettingsModel = {
-    dataSource: this.presence,
-    fields: {
-      id: 'Id',
-      subject: { name: 'Subject' },
-      startTime: { name: 'StartTime' },
-      endTime: { name: 'EndTime' },
-      recurrenceRule: { name: 'RecurrenceRule' }
-    }
-  };
+  protected readonly primary = buttonClass.primary;
+  protected readonly secondary = buttonClass.secondary;
+  protected readonly dow3 = DOW3;
+  protected readonly iso = iso;
 
-  // Current view
-  currentView: View = 'TimelineWorkWeek';
+  protected readonly weekStart = signal(monday(new Date()));
+  protected readonly selDay = signal(Math.min(4, weekday(new Date())));
+  protected readonly filter = signal<'all' | 'mine' | 'uncovered'>('all');
+  protected readonly resources = signal<Resource[]>([]);
+  protected readonly colleagues = signal<Colleague[]>([]);
+  protected readonly occurrences = signal<Occurrence[]>([]);
+  protected readonly loading = signal(false);
+  protected readonly panel = signal<PanelState | null>(null);
+  protected readonly narrow = signal(matchMedia('(max-width: 1199px)').matches);
 
-  // Resource configuration
-  resourceDataSource: Resource[] = [];
-  
-  group = {
-    resources: ['Resources']
-  };
+  protected readonly filters = [
+    { value: 'all', label: 'Tutti' },
+    { value: 'mine', label: 'Le mie' },
+    { value: 'uncovered', label: 'Scoperte' },
+  ] as const;
 
-  // Resource settings for scheduler
-  resourceSettings = {
-    dataSource: this.resourceDataSource,
-    field: 'ResourceIds',
-    title: 'Resources',
-    name: 'Resources',
-    textField: 'Name',
-    idField: 'Id',
-    colorField: 'Background'
-  };
+  protected readonly me = computed(() => {
+    const u = this.auth.currentUserValue;
+    const name = `${u?.name ?? ''} ${u?.lastName ?? ''}`.trim() || (u?.username ?? '');
+    return { id: Number(u?.id), name };
+  });
 
-  // Popup personalizado
-  showAppointmentPopup = false;
-  appointmentPopupData?: AppointmentData;
-  users: UserDisplay[] = [];
-  isEditMode = false;
+  protected readonly days = computed(() => Array.from({ length: 5 }, (_, i) => addDays(this.weekStart(), i)));
+  protected readonly todayIso = iso(new Date());
 
-  private authService = inject(AuthService);
-  private calendarService = inject(CalendarService);
-  private userService = inject(UserService);
+  protected readonly weekLabel = computed(() => {
+    const s = this.weekStart();
+    const e = addDays(s, 4);
+    return `${s.getDate()} – ${e.getDate()} ${MON[e.getMonth()]} ${e.getFullYear()}`;
+  });
+  protected readonly weekSub = computed(() => `Settimana ${isoWeek(this.weekStart())}${iso(this.weekStart()) === iso(monday(new Date())) ? ' · questa settimana' : ''}`);
+
+  private readonly nameOf = computed(() => {
+    const map = new Map<number, string>();
+    for (const c of this.colleagues()) map.set(c.id, `${c.name} ${c.lastName}`.trim());
+    return map;
+  });
+
+  private chipOf(o: Occurrence): Chip {
+    const mine = o.userId === this.me().id;
+    const full = (o.userId !== null ? this.nameOf().get(o.userId) : undefined) ?? o.subject ?? '?';
+    const initials = full.split(' ').filter(Boolean).slice(0, 2).map((p) => p[0].toUpperCase()).join('');
+    return { occ: o, name: mine ? 'Tu' : full, initials: initials || '?', mine, sub: describe(o.recurrenceRule, fromIso(o.date)) };
+  }
+
+  protected readonly rows = computed(() => {
+    const filter = this.filter();
+    const today = new Date(this.todayIso + 'T00:00:00');
+    const tomorrow = addDays(today, 1);
+    return this.resources().map((resource) => ({
+      resource,
+      cells: this.days().map<Cell>((date) => {
+        const people = this.occurrences()
+          .filter((o) => o.date === iso(date) && o.resourceId === resource.id)
+          .map((o) => this.chipOf(o))
+          .sort((a, b) => Number(b.mine) - Number(a.mine) || a.name.localeCompare(b.name));
+        return {
+          date,
+          resource,
+          people,
+          warn: date >= today && date <= tomorrow,
+          dim: (filter === 'mine' && !people.some((p) => p.mine)) || (filter === 'uncovered' && people.length > 0),
+        };
+      }),
+    }));
+  });
+
+  /** telefono: le caselle del giorno scelto, una per risorsa */
+  protected readonly dayRows = computed(() => this.rows().map((r) => ({ resource: r.resource, cell: r.cells[this.selDay()] })));
+
+  protected readonly kpi = computed(() => {
+    const t = this.todayIso;
+    const weekend = [0, 6].includes(new Date().getDay());
+    const uncovered = this.resources().filter((r) => !this.occurrences().some((o) => o.date === t && o.resourceId === r.id));
+    const present = new Set(this.occurrences().filter((o) => o.date === t).map((o) => o.userId ?? o.subject)).size;
+    const limit = iso(addDays(new Date(), 21));
+    const mine = this.occurrences().filter((o) => o.userId === this.me().id && o.date >= t && o.date <= limit).sort((a, b) => a.date.localeCompare(b.date));
+    const first = mine[0]?.date;
+    const where = [...new Set(mine.filter((o) => o.date === first).map((o) => this.resources().find((r) => r.id === o.resourceId)?.name))].join(' e ');
+    const f = first ? fromIso(first) : null;
+    return {
+      uncovered: weekend ? '—' : String(uncovered.length),
+      uncoveredSub: weekend ? 'Oggi non si lavora' : uncovered.length === 0 ? 'Tutte le risorse hanno qualcuno' : uncovered.map((r) => r.name).join(', '),
+      present: weekend ? '—' : String(present),
+      next: f ? `${DOW[weekday(f)]} ${ddmm(f)}` : '—',
+      nextSub: f ? `${where} · 08:30` : 'Nessun turno nelle prossime 3 settimane',
+    };
+  });
 
   constructor() {
-    const user = this.authService.currentUserValue;
-    this.currentUser = user || undefined;
-    this.currentUserName = user?.name || user?.username || 'Utente';
+    const mq = matchMedia('(max-width: 1199px)');
+    const on = (e: MediaQueryListEvent) => this.narrow.set(e.matches);
+    mq.addEventListener('change', on);
+    inject(DestroyRef).onDestroy(() => mq.removeEventListener('change', on));
   }
 
-  
   ngOnInit(): void {
-    this.loadData();
-    this.loadUsers();
+    void this.load();
   }
 
-  async loadUsers(): Promise<void> {
+  protected async load(): Promise<void> {
+    this.loading.set(true);
     try {
-      this.users = await firstValueFrom(this.userService.getUsers());
-      console.log('Users loaded:', this.users.length);
-    } catch (error) {
-      console.error('Error loading users:', error);
-      this.users = [];
-    }
-  }
-
-  async loadData(): Promise<void> {
-    this.isBusy = true;
-    
-    try {
-      // Load resources from backend
-      this.resourceDataSource = await firstValueFrom(
-        this.calendarService.getResources()
-      );
-
-      // Load appointments from backend
-      this.presence = await firstValueFrom(
-        this.calendarService.getAppointments()
-      );
-
-      // Update event configuration with all necessary fields
-      this.eventSettings = {
-        dataSource: this.presence,
-        fields: {
-          id: 'Id',
-          subject: { name: 'Subject' },
-          startTime: { name: 'StartTime' },
-          endTime: { name: 'EndTime' },
-          recurrenceRule: { name: 'RecurrenceRule' }
-        }
-      };
-
-      console.log('Data loaded:', {
-        resources: this.resourceDataSource.length,
-        appointments: this.presence.length,
-        presenceData: this.presence
-      });
-
-      // Refresh scheduler if already initialized
-      if (this.scheduleObj) {
-        this.scheduleObj.eventSettings.dataSource = this.presence;
-        this.scheduleObj.dataBind();
+      if (this.resources().length === 0) {
+        const [resources, colleagues] = await Promise.all([firstValueFrom(this.calendar.getResources()), firstValueFrom(this.calendar.getColleagues())]);
+        this.resources.set([...resources].sort((a, b) => a.id - b.id));
+        this.colleagues.set(colleagues);
       }
-    } catch (error: any) {
-      console.error('Error loading calendar data:', error);
-      
-      // Show error message to user
-      const errorMessage = error?.error?.message || error?.message || 'Errore durante il caricamento dei dati del calendario';
-      alert(`Errore: ${errorMessage}`);
-      
-      // Keep empty data on error
-      this.resourceDataSource = [];
-      this.presence = [];
-      this.eventSettings = {
-        dataSource: this.presence,
-        fields: {
-          id: 'Id',
-          subject: { name: 'Subject' },
-          startTime: { name: 'StartTime' },
-          endTime: { name: 'EndTime' },
-          recurrenceRule: { name: 'RecurrenceRule' }
-        }
-      };
+      // la settimana mostrata + tre settimane davanti a oggi (per «Il tuo prossimo turno»)
+      const today = new Date();
+      const from = this.weekStart() < today ? this.weekStart() : today;
+      const weekEnd = addDays(this.weekStart(), 4);
+      const to = weekEnd > addDays(today, 21) ? weekEnd : addDays(today, 21);
+      this.occurrences.set(await firstValueFrom(this.calendar.getOccurrences(iso(from), iso(to))));
+      this.connection.online.set(true);
+    } catch {
+      this.connection.online.set(false);
+      this.toast.show({ tone: 'err', text: 'Impossibile leggere le presenze. Controlla la connessione.' });
     } finally {
-      this.isBusy = false;
+      this.loading.set(false);
     }
   }
 
-  refreshCalendar(): void {
-    console.log('Refreshing calendar...');
-    this.loadData();
-    if (this.scheduleObj) {
-      this.scheduleObj.refresh();
+  protected shift(weeks: number): void {
+    this.weekStart.update((w) => addDays(w, weeks * 7));
+    void this.load();
+  }
+
+  protected goToday(): void {
+    this.weekStart.set(monday(new Date()));
+    this.selDay.set(Math.min(4, weekday(new Date())));
+    void this.load();
+  }
+
+  protected openPanel(day: Date, resourceId: number, existing: Occurrence | null = null): void {
+    if (this.resources().length) this.panel.set({ day, resourceId, existing });
+  }
+
+  protected addFromToolbar(): void {
+    this.openPanel(addDays(this.weekStart(), this.selDay()), this.resources()[0]?.id ?? 0);
+  }
+
+  protected afterSave(): void {
+    this.panel.set(null);
+    void this.load();
+  }
+
+  protected menuItems(chip: Chip): BmMenuItem[] {
+    const o = chip.occ;
+    const items: BmMenuItem[] = [
+      { key: 'edit', label: 'Cambia', hint: 'Giorno, risorsa, persona o ripetizione', icon: 'pencil', select: () => this.openPanel(fromIso(o.date), o.resourceId, o) },
+      {
+        key: 'remove',
+        label: o.recurring ? 'Togli solo questo giorno' : chip.mine ? 'Togliti' : 'Togli dalla risorsa',
+        hint: o.recurring ? 'La serie continua negli altri giorni' : 'Gli altri sulla risorsa restano',
+        icon: 'trash',
+        danger: true,
+        select: () => void this.removeOne(o, chip.name),
+      },
+    ];
+    if (o.recurring) {
+      items.push({ key: 'end', label: 'Termina la serie da qui', hint: 'Toglie questo giorno e i successivi', icon: 'repeat', danger: true, select: () => void this.endSeries(o) });
     }
+    return items;
   }
 
-  onPopupOpen(args: PopupOpenEventArgs): void {
-    // Cancel default Syncfusion popup
-    args.cancel = true;
-
-    if (args.type === 'QuickInfo' || args.type === 'Editor') {
-      const data = args.data as any;
-      
-      console.log('onPopupOpen - data:', data);
-      console.log('onPopupOpen - resourceDataSource:', this.resourceDataSource);
-      
-      // Determine if it's edit or create
-      this.isEditMode = !!data.Id;
-
-      // Get resource information
-      // For new appointments, use groupIndex to determine the resource
-      let resourceId: string;
-      if (data.ResourceIds) {
-        resourceId = Array.isArray(data.ResourceIds) ? data.ResourceIds[0] : data.ResourceIds;
-      } else if (data.groupIndex !== undefined && this.resourceDataSource[data.groupIndex]) {
-        resourceId = this.resourceDataSource[data.groupIndex].Id;
-        console.log('Using groupIndex:', data.groupIndex, 'resourceId:', resourceId);
-      } else {
-        // Fallback: use first available resource
-        resourceId = this.resourceDataSource[0]?.Id || '1';
-        console.log('Using fallback, resourceId:', resourceId);
-      }
-
-      const resource = this.resourceDataSource.find(r => r.Id === resourceId);
-
-      this.appointmentPopupData = {
-        startTime: data.StartTime,
-        endTime: data.EndTime,
-        resourceIds: [resourceId],
-        resourceName: resource?.Name || 'Unknown',
-        appointmentId: data.Id
-      };
-
-      console.log('appointmentPopupData:', this.appointmentPopupData);
-
-      this.showAppointmentPopup = true;
-    }
+  protected removeFromPanel(o: Occurrence): void {
+    const name = o.userId === this.me().id ? 'Tu' : ((o.userId !== null ? this.nameOf().get(o.userId) : undefined) ?? o.subject ?? 'La persona');
+    void this.removeOne(o, name);
   }
 
-  onCellClick(args: any): void {
-    console.log('Cell clicked:', args);
-  }
-
-  onEventClick(args: any): void {
-    console.log('Event clicked:', args);
-  }
-
-  /**
-   * Translates backend error messages to Italian
-   */
-  private translateErrorMessage(error: any): string {
-    // Log for debug
-    console.log('Error completo:', error);
-    console.log('error.error:', error?.error);
-    console.log('error.message:', error?.message);
-    console.log('error.status:', error?.status);
-    
-    // Try to extract the error message
-    const errorMessage = error?.error?.message || error?.error?.error || error?.error || error?.message || '';
-    
-    console.log('errorMessage extraído:', errorMessage);
-    
-    // Detect duplicate appointment error
-    if (errorMessage.includes('ya tiene un appointment asignado')) {
-      // Extract information from message (name, resource, date)
-      const match = errorMessage.match(/La persona '(.+?)' ya tiene un appointment asignado para el recurso (\d+) el día ([\d-]+)/);
-      
-      if (match) {
-        const [, nombre, recurso, fecha] = match;
-        const recursoNombre = recurso === '1' ? 'Mobile' : 'Onlog';
-        const fechaFormateada = new Date(fecha).toLocaleDateString('it-IT', { 
-          weekday: 'long', 
-          year: 'numeric', 
-          month: 'long', 
-          day: 'numeric' 
-        });
-        return `${nombre} ha già un appuntamento assegnato per ${recursoNombre} il giorno ${fechaFormateada}.`;
-      }
-      
-      // Fallback if message cannot be parsed
-      return 'Questa persona ha già un appuntamento assegnato per questo giorno e risorsa.';
-    }
-    
-    // Other generic errors
-    if (errorMessage) {
-      return `Errore: ${errorMessage}`;
-    }
-    
-    return 'Errore durante l\'assegnazione dell\'appuntamento.';
-  }
-
-  async onAssignToMe(): Promise<void> {
-    if (!this.appointmentPopupData || !this.currentUser) return;
-
-    this.isBusy = true;
+  protected async removeOne(o: Occurrence, name: string): Promise<void> {
+    const resource = this.resources().find((r) => r.id === o.resourceId)?.name ?? '';
+    const others = this.occurrences().filter((x) => x.date === o.date && x.resourceId === o.resourceId).length - 1;
+    const d = fromIso(o.date);
+    const rest = others > 0 ? `Restano ${others} ${others === 1 ? 'persona' : 'persone'}.` : `${resource} resterà senza nessuno.`;
+    const ok = await this.confirm.ask({
+      title: 'Togliere la presenza?',
+      message: `${name === 'Tu' ? 'Non sarai' : name + ' non sarà'} più su ${resource} ${DOW[weekday(d)].toLowerCase()} ${ddmm(d)}. ${rest}${o.recurring ? ' La serie continua negli altri giorni.' : ''}`,
+      confirmLabel: 'Togli presenza',
+      danger: true,
+    });
+    if (!ok) return;
     try {
-      const appointment: Appointment = {
-        Subject: `${this.currentUser.name} ${this.currentUser.lastName}`.trim() || this.currentUser.username,
-        StartTime: this.appointmentPopupData.startTime,
-        EndTime: this.appointmentPopupData.endTime,
-        ResourceIds: this.appointmentPopupData.resourceIds
-      };
-
-      console.log('Appointment to create/update:', appointment);
-
-      if (this.isEditMode && this.appointmentPopupData.appointmentId) {
-        // Update existing appointment
-        const updated = await firstValueFrom(
-          this.calendarService.updateAppointment(this.appointmentPopupData.appointmentId, appointment)
-        );
-        
-        // Update in local array
-        const index = this.presence.findIndex(a => a.Id === this.appointmentPopupData!.appointmentId);
-        if (index !== -1) {
-          this.presence[index] = updated;
-        }
-      } else {
-        // Create new appointment
-        const created = await firstValueFrom(
-          this.calendarService.createAppointment(appointment)
-        );
-        
-        // Add to local array
-        this.presence.push(created);
-      }
-      
-      this.refreshCalendar();
-      this.closePopup();
-    } catch (error: any) {
-      console.error('Error assigning appointment:', error);
-      const errorMessage = this.translateErrorMessage(error);
-      alert(errorMessage);
-    } finally {
-      this.isBusy = false;
+      await firstValueFrom(this.calendar.removeDay(o.appointmentId, o.date));
+      this.toast.show({ tone: 'ok', text: 'Presenza tolta' });
+      this.panel.set(null);
+      void this.load();
+    } catch {
+      this.toast.show({ tone: 'err', text: 'Impossibile togliere la presenza. Riprova più tardi.' });
     }
   }
 
-  async onAssignToUser(user: UserDisplay): Promise<void> {
-    if (!this.appointmentPopupData) return;
-
-    this.isBusy = true;
+  protected async endSeries(o: Occurrence): Promise<void> {
+    const d = fromIso(o.date);
+    const left = this.occurrences().filter((x) => x.appointmentId === o.appointmentId && x.date >= o.date).length;
+    const ok = await this.confirm.ask({
+      title: 'Terminare la serie?',
+      message: `Si tolgono le presenze da ${DOW[weekday(d)].toLowerCase()} ${ddmm(d)} in poi (almeno ${left} in vista); quelle prima restano.`,
+      confirmLabel: 'Termina serie',
+      danger: true,
+    });
+    if (!ok) return;
     try {
-      const appointment: Appointment = {
-        Subject: user.fullName,
-        StartTime: this.appointmentPopupData.startTime,
-        EndTime: this.appointmentPopupData.endTime,
-        ResourceIds: this.appointmentPopupData.resourceIds
-      };
-
-      console.log('Appointment to create/update (assign to user):', appointment);
-
-      if (this.isEditMode && this.appointmentPopupData.appointmentId) {
-        // Update existing appointment
-        const updated = await firstValueFrom(
-          this.calendarService.updateAppointment(this.appointmentPopupData.appointmentId, appointment)
-        );
-        
-        // Update in local array
-        const index = this.presence.findIndex(a => a.Id === this.appointmentPopupData!.appointmentId);
-        if (index !== -1) {
-          this.presence[index] = updated;
-        }
-      } else {
-        // Create new appointment
-        const created = await firstValueFrom(
-          this.calendarService.createAppointment(appointment)
-        );
-        
-        // Add to local array
-        this.presence.push(created);
-      }
-      
-      this.refreshCalendar();
-      this.closePopup();
-    } catch (error: any) {
-      console.error('Error assigning appointment:', error);
-      const errorMessage = this.translateErrorMessage(error);
-      alert(errorMessage);
-    } finally {
-      this.isBusy = false;
+      await firstValueFrom(this.calendar.endSeries(o.appointmentId, o.date));
+      this.toast.show({ tone: 'ok', text: 'Serie terminata' });
+      this.panel.set(null);
+      void this.load();
+    } catch {
+      this.toast.show({ tone: 'err', text: 'Impossibile terminare la serie. Riprova più tardi.' });
     }
-  }
-
-  async onDeleteAppointment(): Promise<void> {
-    if (!this.appointmentPopupData?.appointmentId) return;
-
-    const confirmed = confirm('Sei sicuro di voler eliminare questo appuntamento?');
-    if (!confirmed) return;
-
-    this.isBusy = true;
-    try {
-      // Call service to delete
-      await firstValueFrom(
-        this.calendarService.deleteAppointment(this.appointmentPopupData.appointmentId)
-      );
-      
-      // Remove from local array
-      this.presence = this.presence.filter(a => a.Id !== this.appointmentPopupData!.appointmentId);
-      
-      this.refreshCalendar();
-      this.closePopup();
-    } catch (error: any) {
-      console.error('Error deleting appointment:', error);
-      const errorMessage = error?.error?.message || error?.message || 'Errore durante l’eliminazione dell’appuntamento';
-      alert(`Errore: ${errorMessage}`);
-    } finally {
-      this.isBusy = false;
-    }
-  }
-
-  closePopup(): void {
-    this.showAppointmentPopup = false;
-    this.appointmentPopupData = undefined;
-  }
-
-  logout(): void {
-    this.authService.logout();
   }
 }

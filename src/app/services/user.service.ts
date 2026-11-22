@@ -13,6 +13,7 @@ export interface UserDTO {
   active?: boolean;
   createdAt?: string;
   lastActiveAt?: string;
+  mustChangePassword?: boolean;
 }
 
 export interface UserDisplay {
@@ -44,7 +45,7 @@ export class UserService {
    * Gets the list of active users
    */
   getUsers(): Observable<UserDisplay[]> {
-    return this.http.get<UserDTO[]>(`${this.apiUrl}/users`).pipe(
+    return this.http.get<UserDTO[]>(`${this.apiUrl}/users/active`).pipe(
       map((users: UserDTO[]) => users
         .filter((u: UserDTO) => u.active)
         .map((u: UserDTO) => this.mapUserToDisplay(u))
@@ -80,6 +81,21 @@ export class UserService {
       newPassword,
       forceChangeOnNextLogin
     });
+  }
+
+  /** Tutti gli utenti, anche i disattivi (solo amministratori). */
+  listAll(): Observable<UserDTO[]> {
+    return this.http.get<UserDTO[]>(`${this.apiUrl}/users`);
+  }
+
+  /** Elimina definitivamente un utente (hard delete). */
+  hardDelete(userId: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/users/${userId}/hard`);
+  }
+
+  /** Crea un utente (solo amministratori): attivo subito, con password temporanea da cambiare al primo accesso. */
+  adminCreate(data: { name: string; lastName: string; email: string; username: string; password: string; isAdmin: boolean; active: boolean }): Observable<unknown> {
+    return this.http.post(`${this.apiUrl}/auth/admin-create-user`, data);
   }
 
   /**

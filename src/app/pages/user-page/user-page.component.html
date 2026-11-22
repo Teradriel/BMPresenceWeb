@@ -1,78 +1,46 @@
-<div class="user-page">
-  <div class="content-wrapper">
-    <div class="sections-container">
-      <!-- Header Section with Avatar and Basic Info -->
-      <div class="section header-section">
-        <div class="section-content">
-          <div class="user-info">
-            <!-- Name and Username -->
-            <div class="name-container">
-              <h1 class="user-name">{{ user.name }} {{ user.lastName }}</h1>
-              <div class="username-row">
-                <span class="username">{{ "@" + user.username }}</span>
-                <!-- Admin Badge -->
-                <span class="admin-badge" *ngIf="user.isAdmin">ADMIN</span>
-              </div>
-            </div>
-
-            <!-- Edit Profile Button -->
-            <button class="btn btn-secondary" (click)="onEditProfile()">
-              Modifica Profilo
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Account Information -->
-      <div class="section info-section">
-        <div class="section-content">
-          <h2 class="section-title">Informazioni Account</h2>
-
-          <div class="info-list">
-            <!-- Created Date -->
-            <div class="info-item">
-              <span class="info-icon">📅</span>
-              <div class="info-details">
-                <span class="info-label">Registrato il</span>
-                <span class="info-value">{{ formatDate(user.createdAt) }}</span>
-              </div>
-            </div>
-
-            <!-- Last Active -->
-            <div class="info-item" *ngIf="user.lastActiveAt">
-              <span class="info-icon">🕐</span>
-              <div class="info-details">
-                <span class="info-label">Ultima Attività</span>
-                <span class="info-value">{{
-                  formatDate(user.lastActiveAt)
-                }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Security Section -->
-      <div class="section security-section">
-        <div class="section-content">
-          <h2 class="section-title">Sicurezza</h2>
-
-          <div class="button-group">
-            <button class="btn btn-primary" (click)="onChangePassword()">
-              Cambia Password
-            </button>
-
-            <button class="btn btn-danger" (click)="onLogout()">
-              Esci dall'Account
-            </button>
-          </div>
-        </div>
+<div class="mx-auto flex w-full max-w-[880px] flex-col gap-4 px-3 py-4 md:px-5 md:py-5">
+  <!-- Dati -->
+  <section class="flex flex-wrap items-start gap-4 rounded-[14px] border border-line bg-surface p-5">
+    <span class="grid size-16 place-items-center rounded-full bg-accent-soft text-[22px] font-semibold text-accent-ink">{{ initials }}</span>
+    <div class="flex min-w-0 flex-1 flex-col gap-1">
+      <h2 class="text-xl font-semibold">{{ user.name }} {{ user.lastName }}</h2>
+      <p class="text-[13px] text-muted"><span class="font-mono">&#64;{{ user.username }}</span>@if (email) { · {{ email }} }</p>
+      <div class="mt-1.5 flex gap-1.5">
+        <span class="inline-flex h-6 items-center rounded-full bg-accent-soft px-2.5 text-xs font-medium text-accent-ink">{{ user.isAdmin ? 'Amministratore' : 'Utente' }}</span>
+        <span class="inline-flex h-6 items-center rounded-full bg-ok-soft px-2.5 text-xs font-medium text-ok-ink">Attivo</span>
       </div>
     </div>
+    <button type="button" class="inline-flex h-10 items-center justify-center rounded-[9px] border border-line-strong bg-surface px-3.5 text-sm font-medium text-ink hover:bg-sunken" (click)="onEditProfile()">Modifica</button>
+  </section>
 
-    <!-- Loading Indicator -->
-    <div class="loading-overlay" *ngIf="isBusy">
-      <div class="spinner"></div>
+  <!-- Le mie presenze -->
+  <section class="flex flex-col gap-2.5 rounded-[14px] border border-line bg-surface p-5">
+    <h3 class="text-[15px] font-semibold">Le mie presenze</h3>
+    <p class="text-sm">Il tuo prossimo turno: <b>{{ nextShift }}</b></p>
+    <p class="text-[13px] text-muted">{{ nextShiftSub }}</p>
+    <a routerLink="/main" class="inline-flex h-10 w-fit items-center justify-center rounded-[9px] bg-accent px-4 text-sm font-medium text-white shadow-sm hover:bg-accent-hover">Vai alle presenze</a>
+  </section>
+
+  <!-- Sicurezza -->
+  <section class="flex flex-col gap-2.5 rounded-[14px] border border-line bg-surface p-5">
+    <h3 class="text-[15px] font-semibold">Sicurezza</h3>
+    @if (user.lastActiveAt) {
+      <p class="text-[13px] text-muted">Ultimo accesso: {{ formatDate(user.lastActiveAt) }}</p>
+    }
+    <div class="flex flex-wrap gap-2.5">
+      <button type="button" class="inline-flex h-10 items-center justify-center rounded-[9px] border border-line-strong bg-surface px-3.5 text-sm font-medium text-ink hover:bg-sunken" (click)="onChangePassword()">Cambia password</button>
+      <button type="button" class="inline-flex h-10 items-center justify-center rounded-[9px] border border-line-strong bg-surface px-3.5 text-sm font-medium text-err-ink hover:bg-sunken" (click)="onLogout()">Esci</button>
     </div>
-  </div>
+  </section>
+
+  <!-- Preferenze -->
+  <section class="flex flex-col gap-2.5 rounded-[14px] border border-line bg-surface p-5">
+    <h3 class="text-[15px] font-semibold">Preferenze</h3>
+    <p class="text-[13px] text-muted">Il tema vale solo su questo dispositivo.</p>
+    <bm-sliding-group label="Tema" boxClass="self-start">
+      @for (t of themes; track t.value) {
+        <button type="button" class="relative z-[1] h-8 rounded-lg px-3 text-[13px] font-medium" [attr.data-active]="theme.mode() === t.value" [class]="theme.mode() === t.value ? 'text-ink' : 'text-ink-2'" (click)="theme.set(t.value)">{{ t.label }}</button>
+      }
+    </bm-sliding-group>
+  </section>
 </div>
