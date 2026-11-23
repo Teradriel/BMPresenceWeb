@@ -1,115 +1,101 @@
 # BMPresenceWeb
 
-BMPresenceWeb is a scheduling and presence management web application. It provides authentication, protected routes, user profiles, and appointment management through a calendar-based UI.
+BMPresenceWeb is a scheduling and presence management web application. It handles authentication, protects routes, and manages user profiles, all presented through a calendar-based interface for appointment scheduling.
 
-## Key Features
+## Features
 
-- User authentication (login/logout) and session persistence
-- Route protection with guards
-- Main dashboard with scheduling features
-- Appointment creation and editing through the calendar UI
-- User management system with:
-  - User listing and search
-  - User creation and editing
-  - Role-based access control
-  - User deletion (admin only)
-- Legal pages (privacy policy and terms of service)
-- Password change functionality
-- Automatic token renewal and session management
+BMPresenceWeb offers a full set of capabilities for managing availability and appointments:
+
+- **Authentication & sessions** – login/logout with persistent session tokens that renew automatically.
+- **Protected routes** – navigation guards keep sensitive areas locked down.
+- **Interactive dashboard** – a calendar-based main page for scheduling and editing appointments.
+- **User management** – list, search, create, edit, and delete users (admin only), backed by role-based access control.
+- **Legal pages** – privacy policy and terms of service.
+- **Password change** – secure password updates.
 
 ## Tech Stack
 
-- Angular 21
-- TypeScript
-- Syncfusion components (calendar/scheduling UI)
-- Modern dependency injection using `inject()` function
+| Technology | Purpose |
+| --- | --- |
+| Angular 21 | Frontend framework |
+| TypeScript | Strongly typed language |
+| Syncfusion | Calendar and scheduling UI components |
+| `inject()` | Modern dependency injection |
 
 ## Getting Started
 
-1. Install dependencies
-   - `npm install` (includes automatic Syncfusion license configuration via prebuild script)
-2. Configure environment variables
-   - See [ENVIRONMENT_SETUP.md](ENVIRONMENT_SETUP.md)
-3. Start the development server
-   - `npm start` or `ng serve`
-4. Open the app
-   - `http://localhost:4200/`
+Follow these steps to get a working copy of the app:
 
-## Recent Updates
-
-### Version 2.0+ (Angular 21)
-
-- **Framework upgrade**: Migrated to Angular 21 from Angular 19
-- **User Management**: Complete user administration system:
-  - List all users with search and filtering
-  - Create and edit user profiles
-  - Delete users (admin only)
-  - Role-based permissions (Admin/User)
-- **Code modernization**:
-  - Refactored to use `inject()` function for dependency injection
-  - Improved code readability and maintainability
-  - Internationalized codebase (English comments, Italian UI)
-- **UI improvements**:
-  - Enhanced appointment popup with cleaner interface
-  - Improved edit user page styling and responsiveness
-  - Fixed tab visibility issues on login page
-- **Automation**: Prebuild script for Syncfusion license key insertion
-- **Dependencies**: Updated to latest compatible versions
+1. **Install dependencies** – run `npm install`. This also triggers a prebuild script that configures the Syncfusion license automatically.
+2. **Configure environment variables** – see [ENVIRONMENT_SETUP.md](ENVIRONMENT_SETUP.md).
+3. **Start the development server** – use `npm start` or `ng serve`.
+4. **Open the app** – head to [http://localhost:4200/](http://localhost:4200/).
 
 ## Project Documentation
 
-- Authentication flow and guards: [AUTH_SETUP.md](AUTH_SETUP.md)
-- Environment variables and Syncfusion key: [ENVIRONMENT_SETUP.md](ENVIRONMENT_SETUP.md)
-- Backend API contract for appointments: [BACKEND_API_REQUIREMENTS.md](BACKEND_API_REQUIREMENTS.md)
+- **Authentication flow and guards** – [AUTH_SETUP.md](AUTH_SETUP.md)
+- **Environment variables and Syncfusion key** – [ENVIRONMENT_SETUP.md](ENVIRONMENT_SETUP.md)
+- **Backend API contract for appointments** – [BACKEND_API_REQUIREMENTS.md](BACKEND_API_REQUIREMENTS.md)
 
 ## Application Structure
 
 ### Pages
 
-- **Login & Registration**: User authentication and account creation
-- **Main Page**: Dashboard with calendar and appointment scheduling
-- **User Page**: Individual user profile view
-- **Users List Page**: Complete user management (admin)
-- **Edit User Page**: User profile editing with validation
-- **Change Password**: Secure password update functionality
-- **About**: Application information and version details
-- **Privacy Policy & Terms of Service**: Legal documentation
+- **Login & Registration** – user authentication and account creation.
+- **Main Page** – dashboard with calendar and appointment scheduling.
+- **User Page** – individual user profile view.
+- **Users List Page** – complete user management (admin).
+- **Edit User Page** – user profile editing with validation.
+- **Change Password** – secure password update.
+- **About** – application information and version details.
+- **Privacy Policy & Terms of Service** – legal documentation.
 
 ### Services
 
-- **AuthService**: Authentication, login, logout, token management
-- **UserService**: User CRUD operations and profile management
-- **CalendarService**: Appointment scheduling and calendar events
-- **TokenRenewalService**: Automatic session renewal
+- **AuthService** – authentication, login, logout, and token management.
+- **UserService** – user CRUD operations and profile management.
+- **CalendarService** – appointment scheduling and calendar events.
+- **TokenRenewalService** – automatic session renewal.
 
 ### Guards & Interceptors
 
-- **AuthGuard**: Route protection for authenticated users
-- **AuthInterceptor**: Automatic token injection in HTTP requests
+- **AuthGuard** – route protection for authenticated users.
+- **AuthInterceptor** – automatic token injection in HTTP requests.
+
+## Recent Updates
+
+### Version 2.0+ (Angular 21)
+
+- **Framework upgrade** – migrated from Angular 19 to Angular 21.
+- **User management** – a complete administration system to list users with search and filtering, create and edit profiles, delete users (admin only), and enforce Admin/User role permissions.
+- **Code modernization** – refactored dependency injection to use the `inject()` function, improving readability and maintainability, and internationalized the codebase (English comments, Italian UI).
+- **UI improvements** – cleaner appointment popup, better edit-user styling and responsiveness, and fixed login-page tab visibility.
+- **Automation** – added a prebuild script for inserting the Syncfusion license key.
+- **Dependencies** – updated to the latest compatible versions.
 
 ## Scripts
 
-- Start dev server: `npm start` or `ng serve`
-- Build for production: `ng build`
-- Build with production environment: `ng build --configuration=production`
-- Unit tests: `ng test`
-- Prebuild (Syncfusion license setup): `node set-syncfusion-key.js`
+- Start dev server – `npm start` or `ng serve`
+- Build for production – `ng build`
+- Build with production environment – `ng build --configuration=production`
+- Unit tests – `ng test`
+- Prebuild (Syncfusion license setup) – `node set-syncfusion-key.js`
 
 ## Development Notes
 
-- This project follows Angular CLI conventions for structure, builds, and testing
-- Uses modern Angular features including standalone components and `inject()` function
-- Requires Syncfusion license key (configured via environment variables)
-- Session tokens are automatically renewed to maintain user sessions
-- Role-based access control implemented for admin features
-- Code comments are in English, UI messages are in Italian
+- Follows Angular CLI conventions for structure, builds, and testing.
+- Uses modern Angular features such as standalone components and the `inject()` function.
+- Requires a Syncfusion license key, configured via environment variables.
+- Session tokens are renewed automatically to keep user sessions alive.
+- Role-based access control gates the admin features.
+- Code comments are in English while UI messages are in Italian.
 
 ## Contributing
 
-When contributing to this project:
+When contributing, please:
 
-- Follow the existing code structure and naming conventions
-- Use the `inject()` function for dependency injection
-- Write unit tests for new components and services
-- Keep comments in English for maintainability
-- Ensure responsive design for all new UI components
+- Follow the existing code structure and naming conventions.
+- Use the `inject()` function for dependency injection.
+- Write unit tests for new components and services.
+- Keep comments in English for maintainability.
+- Ensure responsive design for all new UI components.
